@@ -3,14 +3,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
-import {
-  collection,
-  doc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -61,14 +54,17 @@ const RegisterPage = () => {
         return;
       }
 
+      if (!Email.includes("samsun.edu.tr")) {
+        toast.error("Lütfen okul epostanızı giriniz.");
+        return;
+      }
+
       setIsLoading(true);
       toast.loading("İşleniyor...");
 
-      const userQuery = await getDocs(
-        query(collection(db, "Users"), where("Email", "==", Email))
-      );
+      const userQuery = await getDoc(doc(db, "Users", Email));
 
-      if (!userQuery.empty) {
+      if (userQuery.exists()) {
         toast.dismiss();
         setIsLoading(false);
         toast.error(`${Email} E-Posta adresiyle Kullanıcı zaten var.`);
@@ -107,7 +103,7 @@ const RegisterPage = () => {
         throw new Error(error);
       }
 
-      await setDoc(doc(db, "Users", user.uid), {
+      await setDoc(doc(db, "Users", Email), {
         Auth: 1,
         Department,
         Email,
@@ -117,7 +113,6 @@ const RegisterPage = () => {
         IdType,
         LastName,
         PhoneNumber,
-        // SchoolYear,
         createdAt: new Date(),
       });
       toast.dismiss();

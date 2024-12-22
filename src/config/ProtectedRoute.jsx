@@ -9,8 +9,6 @@ const ProtectedRoute = () => {
   if (loading) {
     toast.loading("İşleniyor...");
     return;
-  } else {
-    toast.dismiss();
   }
 
   return !user?.emailVerified ? <Navigate to="/login" /> : <Outlet />;

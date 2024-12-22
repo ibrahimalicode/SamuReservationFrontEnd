@@ -1,13 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
+  createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { useState } from "react";
-import { auth } from "../firebase";
+import { useEffect, useState } from "react";
+import { auth, db } from "../firebase";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+import { doc, getDoc } from "firebase/firestore";
 
 const LoginPage = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState({
@@ -15,11 +20,19 @@ const LoginPage = () => {
     Password: "",
   });
 
+  useEffect(() => {
+    if (user && user?.emailVerified) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  //SET STATE
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
   };
 
+  //LOGIN
   async function handleLogin(e) {
     e.preventDefault();
     const { Email, Password } = userData;
@@ -37,47 +50,106 @@ const LoginPage = () => {
     toast.loading("İşleniyor...");
     setIsLoading(true);
     try {
-      // Sign in the user with email and password
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        Email,
-        Password
-      );
+      // Step 1: Check if user exists in Firestore
+      const userQuery = await getDoc(doc(db, "Users", Email));
 
-      // Check if the user's email is verified
-      const user = userCredential.user;
-
-      if (!user.emailVerified) {
-        toast.error("E-posta adresinizi doğrulamanız gerekiyor.");
-
-        // Send verification email again
-        await sendEmailVerification(user, {
-          url: `${import.meta.env.VITE_FRONTEND_URL}/`,
-        });
-
+      if (!userQuery.exists()) {
+        // User not found in Firestore
         toast.dismiss();
         setIsLoading(false);
-        navigate("/verify-email");
-        toast.success("E-posta doğrulama linki gönderildi.");
+        toast.error("Kullanıcı bulunamadı. Lütfen kaydolun.");
         return;
       }
 
-      // If the email is verified, proceed to the main page
-      navigate("/");
-      toast.dismiss();
-      setIsLoading(false);
-      toast.success("Başarıyla giriş yaptınız");
-      console.log("User logged in successfully:", userCredential.user);
+      const userDataFromDb = userQuery.docs[0].data();
+
+      // Step 2: Check if user exists in Firebase Auth
+      const signInMethods = await fetchSignInMethodsForEmail(auth, Email);
+
+      if (signInMethods.length === 0) {
+        // User not found in Firebase Auth, create the user
+        console.log("User not found in Firebase Auth, creating the user...");
+
+        const Password = userDataFromDb.Password;
+        try {
+          const newUserCredential = await createUserWithEmailAndPassword(
+            auth,
+            Email,
+            Password
+          );
+          const newUser = newUserCredential.user;
+
+          // Send email verification
+          await sendEmailVerification(newUser, {
+            url: `${import.meta.env.VITE_FRONTEND_URL}/`,
+          });
+
+          toast.dismiss();
+          setIsLoading(false);
+          navigate("/verify-email");
+          toast.success(
+            "E-posta doğrulama linki gönderildi. E-posta adresinizi doğrulayınız"
+          );
+          return;
+        } catch (createError) {
+          console.error("Error creating user:", createError);
+          toast.dismiss();
+          toast.error("Kullanıcı oluşturulurken bir hata oluştu.");
+          setIsLoading(false);
+        }
+      }
+
+      // Step 3: If the user exists in Firebase Auth, sign in
+      try {
+        // Sign in the user with email and password
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          Email,
+          Password
+        );
+
+        // Check if the user's email is verified
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          toast.error("E-posta adresinizi doğrulamanız gerekiyor.");
+
+          // Send verification email again
+          await sendEmailVerification(user, {
+            url: `${import.meta.env.VITE_FRONTEND_URL}/`,
+          });
+
+          toast.dismiss();
+          setIsLoading(false);
+          navigate("/verify-email");
+          toast.success(
+            "E-posta doğrulama linki gönderildi. E-posta adresinizi doğrulayınız"
+          );
+          return;
+        }
+
+        // If the email is verified, proceed to the main page
+        navigate("/");
+        toast.dismiss();
+        setIsLoading(false);
+        toast.success("Başarıyla giriş yaptınız");
+        console.log("User logged in successfully:", userCredential.user);
+      } catch (error) {
+        if (error.code === "auth/invalid-credential") {
+          toast.dismiss();
+          toast.error("Lütfen bilgilerinizi kontrol ediniz.");
+        } else {
+          toast.dismiss();
+          toast.error("Bir hata oluştu. Lütfen tekrar deneyiniz");
+        }
+        setIsLoading(false);
+        console.log(error.code);
+      }
     } catch (error) {
       toast.dismiss();
+      console.log(error);
       setIsLoading(false);
-
-      if (error.code === "auth/invalid-credential") {
-        toast.error("Lütfen bilgilerinizi kontrol ediniz.");
-      } else {
-        toast.error("Bir hata oluştu. Lütfen tekrar deneyiniz");
-      }
-      console.log(error.code);
+      toast.error("Bir hata oluştu. Lütfen tekrar deneyiniz");
     }
   }
 
@@ -132,15 +204,26 @@ const LoginPage = () => {
               >
                 Giriş Yap
               </button>
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Hesabınız Yok Mu?{" "}
-                <Link
-                  to="/register"
-                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                >
-                  Kayıt ol
-                </Link>
-              </p>
+              <div className="flex justify-between">
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                  Hesabınız Yok Mu?{" "}
+                  <Link
+                    to="/register"
+                    className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                  >
+                    Kayıt ol
+                  </Link>
+                </p>
+
+                <p>
+                  <Link
+                    to="/forget-password"
+                    className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                  >
+                    Şifremi unuttum?
+                  </Link>
+                </p>
+              </div>
             </form>
           </div>
         </div>
