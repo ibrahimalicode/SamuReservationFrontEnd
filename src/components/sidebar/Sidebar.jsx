@@ -5,7 +5,6 @@ import { useAuth } from "../../context/AuthContext";
 const Sidebar = ({ isSideOpen }) => {
   const params = useParams()["*"];
   const { user } = useAuth();
-  console.log(user);
 
   const sidebar = [
     user.Auth === 0 && {

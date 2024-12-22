@@ -35,9 +35,7 @@ const UsersPage = () => {
     if (!usersData) {
       fetchUsers();
     }
-  }, [usersData, user]);
-
-  console.log(usersData);
+  }, [usersData, user, navigate]);
 
   return (
     <section className="md:ml-64 mt-16 px-[4%]">
