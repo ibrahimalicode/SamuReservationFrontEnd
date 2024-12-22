@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useState } from "react";
 import Header from "../components/header/Header";
 import Sidebar from "../components/sidebar/Sidebar";
-import Users from "./users";
+import Users from "./Users";
 import Facilities from "./Facilities";
 const HomePage = () => {
   const [isSideOpen, setIsSideOpen] = useState(false);
