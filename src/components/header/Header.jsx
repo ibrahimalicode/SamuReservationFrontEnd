@@ -1,24 +1,33 @@
-//modules
-// import toast from "react-hot-toast";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-
-//comp
+import { Link, useNavigate } from "react-router-dom";
 import { UserI } from "../../assets/icons";
 import MenuI from "../../assets/icons/menu";
-// import logo from "../../assets/icons/logo.svg";
-
-//redux
 import { useAuth } from "../../context/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase";
+import toast from "react-hot-toast";
 
 const Header = ({ isSideOpen, setIsSideOpen }) => {
-  // const toastId = useRef();
   const { user } = useAuth();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState(false);
 
   function handleLogout() {
-    //
+    setOpenMenu(false);
+    toast.loading("Çıkış yapılıyor...");
+    signOut(auth)
+      .then(() => {
+        // Success, user is logged out
+        toast.dismiss();
+        toast.success("Başarıyla çıkış yaptınız.");
+        navigate("/login"); // Redirect user to login page or any other page
+      })
+      .catch((error) => {
+        // Handle any errors during logout
+        toast.dismiss();
+        toast.error("Çıkış yaparken bir hata oluştu.");
+        console.error(error);
+      });
   }
 
   return (

@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
   createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail,
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
@@ -9,7 +8,7 @@ import { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
-import { doc, getDoc } from "firebase/firestore";
+import { deleteField, doc, getDoc, updateDoc } from "firebase/firestore";
 
 const LoginPage = () => {
   const { user } = useAuth();
@@ -51,9 +50,10 @@ const LoginPage = () => {
     setIsLoading(true);
     try {
       // Step 1: Check if user exists in Firestore
-      const userQuery = await getDoc(doc(db, "Users", Email));
+      const userDocRef = doc(db, "Users", Email);
+      const userSnap = await getDoc(userDocRef);
 
-      if (!userQuery.exists()) {
+      if (!userSnap.exists()) {
         // User not found in Firestore
         toast.dismiss();
         setIsLoading(false);
@@ -61,23 +61,20 @@ const LoginPage = () => {
         return;
       }
 
-      const userDataFromDb = userQuery.docs[0].data();
-
       // Step 2: Check if user exists in Firebase Auth
-      const signInMethods = await fetchSignInMethodsForEmail(auth, Email);
-
-      if (signInMethods.length === 0) {
+      if (userSnap.data().Password) {
         // User not found in Firebase Auth, create the user
         console.log("User not found in Firebase Auth, creating the user...");
-
-        const Password = userDataFromDb.Password;
         try {
           const newUserCredential = await createUserWithEmailAndPassword(
             auth,
             Email,
-            Password
+            userSnap.data().Password
           );
           const newUser = newUserCredential.user;
+          await updateDoc(userDocRef, {
+            Password: deleteField(), // This will delete the 'Password' field
+          });
 
           // Send email verification
           await sendEmailVerification(newUser, {

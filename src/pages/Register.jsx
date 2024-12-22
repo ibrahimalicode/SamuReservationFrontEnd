@@ -62,9 +62,9 @@ const RegisterPage = () => {
       setIsLoading(true);
       toast.loading("İşleniyor...");
 
-      const userQuery = await getDoc(doc(db, "Users", Email));
+      const userSnap = await getDoc(doc(db, "Users", Email));
 
-      if (userQuery.exists()) {
+      if (userSnap.exists()) {
         toast.dismiss();
         setIsLoading(false);
         toast.error(`${Email} E-Posta adresiyle Kullanıcı zaten var.`);
