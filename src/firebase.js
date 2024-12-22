@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAwBJs0vZ3T5ZtQD7b8smqlwSmge9e7FWs",
-  authDomain: "samu-reservation.firebaseapp.com",
-  projectId: "samu-reservation",
-  storageBucket: "samu-reservation.firebasestorage.app",
-  messagingSenderId: "608455141245",
-  appId: "1:608455141245:web:48dbc31083497ccca38e14",
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
 };
 
 // Initialize Firebase

@@ -13,7 +13,7 @@ const ProtectedRoute = () => {
     toast.dismiss();
   }
 
-  return !user ? <Navigate to="/login" /> : <Outlet />;
+  return !user?.emailVerified ? <Navigate to="/login" /> : <Outlet />;
 };
 
 export default ProtectedRoute;

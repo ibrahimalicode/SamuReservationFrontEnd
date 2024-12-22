@@ -1,5 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { useState } from "react";
 import { auth } from "../firebase";
 import toast from "react-hot-toast";
@@ -21,15 +24,45 @@ const LoginPage = () => {
     e.preventDefault();
     const { Email, Password } = userData;
 
+    if (!Email.includes("samsun.edu.tr")) {
+      toast.error("Lütfen okul epostanızı giriniz.");
+      return;
+    }
+
+    if (Password.length < 6) {
+      toast.error("Şifreniz en az 6 karakter olmalı.");
+      return;
+    }
+
     toast.loading("İşleniyor...");
     setIsLoading(true);
     try {
+      // Sign in the user with email and password
       const userCredential = await signInWithEmailAndPassword(
         auth,
         Email,
         Password
       );
 
+      // Check if the user's email is verified
+      const user = userCredential.user;
+
+      if (!user.emailVerified) {
+        toast.error("E-posta adresinizi doğrulamanız gerekiyor.");
+
+        // Send verification email again
+        await sendEmailVerification(user, {
+          url: `${import.meta.env.VITE_FRONTEND_URL}/`,
+        });
+
+        toast.dismiss();
+        setIsLoading(false);
+        navigate("/verify-email");
+        toast.success("E-posta doğrulama linki gönderildi.");
+        return;
+      }
+
+      // If the email is verified, proceed to the main page
       navigate("/");
       toast.dismiss();
       setIsLoading(false);
@@ -38,12 +71,13 @@ const LoginPage = () => {
     } catch (error) {
       toast.dismiss();
       setIsLoading(false);
-      if (error.message.includes("invalid-credential")) {
+
+      if (error.code === "auth/invalid-credential") {
         toast.error("Lütfen bilgilerinizi kontrol ediniz.");
       } else {
         toast.error("Bir hata oluştu. Lütfen tekrar deneyiniz");
       }
-      console.log(error);
+      console.log(error.code);
     }
   }
 
@@ -61,7 +95,7 @@ const LoginPage = () => {
                   htmlFor="email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  E-Posta
+                  E-Posta (samsun.edu.tr)
                 </label>
                 <input
                   type="email"
@@ -99,7 +133,7 @@ const LoginPage = () => {
                 Giriş Yap
               </button>
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Hesabınız Yok Mu?
+                Hesabınız Yok Mu?{" "}
                 <Link
                   to="/register"
                   className="font-medium text-blue-600 hover:underline dark:text-blue-500"

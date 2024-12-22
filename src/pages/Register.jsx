@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import {
   collection,
   doc,
@@ -9,7 +12,6 @@ import {
   where,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import verifyCode from "./Verify";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -32,10 +34,24 @@ const RegisterPage = () => {
     SchoolYear: "",
   });
 
-  async function handleSubmit(e) {
+  async function handleRegister(e) {
     e.preventDefault();
+
     try {
-      const { Email, Password, ConfirmPassword } = userData;
+      const {
+        Department,
+        Email,
+        FirstName,
+        Gender,
+        IdNumber,
+        IdType,
+        LastName,
+        Password,
+        ConfirmPassword,
+        PhoneNumber,
+        // SchoolYear,
+      } = userData;
+
       if (Password !== ConfirmPassword) {
         toast.error("Şifreler aynı değil");
         return;
@@ -44,6 +60,7 @@ const RegisterPage = () => {
         toast.error("Şifreniz en az 6 karakter olmalı.");
         return;
       }
+
       setIsLoading(true);
       toast.loading("İşleniyor...");
 
@@ -58,52 +75,40 @@ const RegisterPage = () => {
         return;
       }
 
-      //GENERATE A CODE
-      const verificationCode = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString();
-
-      //SAVE THE CODE
-      const verificationRef = doc(db, "EmailVerification", Email);
-      await setDoc(verificationRef, {
-        code: verificationCode,
-        createdAt: new Date().toISOString(),
-      });
-
-      //SEND THE CODE
-      const baseUrl = import.meta.env.VITE_BASE_URL;
-      const sendVerificationEmail = await fetch(`${baseUrl}/sendEmail`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: Email,
-          subject: "Hesabınızı Onaylayınız",
-          body: `Onay Kodunuz: ${verificationCode}.`,
-        }),
-      });
-
-      // CHECK IF EMAIL WAS SENT SUCCESSFULLY
-      if (sendVerificationEmail.ok) {
+      let userCredential;
+      try {
+        userCredential = await createUserWithEmailAndPassword(
+          auth,
+          Email,
+          Password
+        );
+      } catch (error) {
         toast.dismiss();
         setIsLoading(false);
-        toast.success(`Onay kodu ${Email} E-Posta adresinize gönderildi.`);
-        setToVerify(true);
-      } else {
-        toast.dismiss();
-        setIsLoading(false);
+        console.log(error);
+        if (error.message.includes("auth/email-already-in-use")) {
+          toast.error(`${Email} E-Posta adresiyle Kullanıcı zaten var.`);
+          return;
+        }
         toast.error("Bir hata oluştu. Lütfen tekrar deneyiniz");
-        const errorResponse = await sendVerificationEmail.json();
-        console.error("Failed to send email:", errorResponse.message);
+        throw new Error(error);
       }
-    } catch (error) {
-      console.error("Error sending the code", error.message);
-    }
-  }
 
-  async function handleRegister(e) {
-    e.preventDefault();
-    try {
-      const {
+      const user = userCredential.user;
+
+      // Send email verification
+      try {
+        await sendEmailVerification(user, {
+          url: `${import.meta.env.VITE_FRONTEND_URL}/`,
+        });
+      } catch (error) {
+        console.error("Email verification error:", error);
+        toast.error("E-posta gönderiminde hata oluştu.");
+        throw new Error(error);
+      }
+
+      await setDoc(doc(db, "Users", user.uid), {
+        Auth: 1,
         Department,
         Email,
         FirstName,
@@ -111,53 +116,16 @@ const RegisterPage = () => {
         IdNumber,
         IdType,
         LastName,
-        Password,
         PhoneNumber,
         // SchoolYear,
-      } = userData;
-
-      setIsLoading(true);
-      toast.loading("İşleniyor...");
-      if (await verifyCode(Email, Code)) {
-        let userCredential;
-        try {
-          userCredential = await createUserWithEmailAndPassword(
-            auth,
-            Email,
-            Password
-          );
-        } catch (error) {
-          toast.dismiss();
-          setIsLoading(false);
-          toast.error("Bir hata oluştu. Lütfen tekrar deneyiniz");
-          console.log(error);
-          throw new Error(error);
-        }
-
-        const user = userCredential.user;
-        await setDoc(doc(db, "users", user.uid), {
-          Auth: 1,
-          Department,
-          Email,
-          FirstName,
-          Gender,
-          IdNumber,
-          IdType,
-          LastName,
-          PhoneNumber,
-          // SchoolYear,
-          createdAt: new Date(),
-        });
-        verifyCode(Email, Code, true); //DELETE THE CODE
-        toast.dismiss();
-        setIsLoading(false);
-        toast.success("Hesabınız başarıyla oluşturulmuştur.");
-        navigate("login");
-      } else {
-        toast.dismiss();
-        setIsLoading(false);
-        toast.error("Yanlış Kod. Tekrar deneyiniz");
-      }
+        createdAt: new Date(),
+      });
+      toast.dismiss();
+      setIsLoading(false);
+      toast.success(
+        "Onaylama e-postası gönderildi. Lütfen e-postanızı kontrol edin."
+      );
+      navigate("/verify-email");
     } catch (error) {
       toast.dismiss();
       setIsLoading(false);
@@ -176,7 +144,10 @@ const RegisterPage = () => {
                 Kayıt Ol
               </h1>
 
-              <form className="space-y-3 md:space-y-4" onSubmit={handleSubmit}>
+              <form
+                className="space-y-3 md:space-y-4"
+                onSubmit={handleRegister}
+              >
                 <div>
                   <label
                     htmlFor="firstname"
