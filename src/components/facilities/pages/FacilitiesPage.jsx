@@ -10,6 +10,7 @@ import AddFacility from "../actions/AddFacility";
 const FacilitiesPage = () => {
   const { user } = useAuth();
   const [facilitiesData, setfacilitiesData] = useState(null);
+  const [tableData, setTableData] = useState();
 
   useEffect(() => {
     const fetchFacilities = async () => {
@@ -20,6 +21,7 @@ const FacilitiesPage = () => {
           id: doc.id,
           ...doc.data(),
         }));
+        setTableData(facilitiesList[0]);
         setfacilitiesData(facilitiesList);
       } catch (error) {
         console.error("Error fetching facilities:", error);
@@ -41,11 +43,22 @@ const FacilitiesPage = () => {
           <AddFacility onSuccess={() => setfacilitiesData(null)} />
         </div>
       </div>
+      <div>
+        {facilitiesData?.map((fac) => (
+          <button
+            key={fac.id}
+            onClick={() => setTableData(fac)}
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          >
+            {fac.Name}
+          </button>
+        ))}
+      </div>
 
       <div className="relative shadow-md sm:rounded-lg">
         {facilitiesData ? (
           <FacilitiesTable
-            facilities={facilitiesData}
+            facilitiy={tableData}
             onSuccess={() => setfacilitiesData(null)}
           />
         ) : (
