@@ -75,9 +75,9 @@ function AddUserPopup({ onSuccess }) {
       setIsLoading(true);
       toast.loading("İşleniyor...");
 
-      const userQuery = await getDoc(doc(db, "Users", Email));
+      const userSnap = await getDoc(doc(db, "Users", Email));
 
-      if (userQuery.empty) {
+      if (userSnap.exists()) {
         toast.dismiss();
         setIsLoading(false);
         toast.error(`${Email} E-Posta adresiyle Kullanıcı zaten var.`);
@@ -94,6 +94,7 @@ function AddUserPopup({ onSuccess }) {
         IdType,
         LastName,
         PhoneNumber,
+        Password,
         createdAt: new Date(),
       });
 

@@ -42,7 +42,7 @@ const UsersPage = () => {
       <div className="w-full flex justify-between py-6 ">
         <h1 className="font-bold text-2xl">Kullanıcılar</h1>
         <div>
-          <AddUser />
+          <AddUser onSuccess={() => setUsersData(null)} />
         </div>
       </div>
 
