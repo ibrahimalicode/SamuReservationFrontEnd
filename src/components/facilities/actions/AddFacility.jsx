@@ -93,8 +93,8 @@ function AddFacilityPopup({ onSuccess }) {
       setIsLoading(true);
       toast.loading("İşleniyor...");
 
-      const newUserRef = doc(collection(db, "Facilities"));
-      await setDoc(newUserRef, {
+      const newFacilityRef = doc(collection(db, "Facilities"));
+      await setDoc(newFacilityRef, {
         ...facilityData,
         createdAt: new Date(),
       });
