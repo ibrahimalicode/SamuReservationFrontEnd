@@ -4,6 +4,7 @@ import Header from "../components/header/Header";
 import Sidebar from "../components/sidebar/Sidebar";
 import Users from "./Users";
 import Facilities from "./Facilities";
+import Settings from "./Settings";
 const HomePage = () => {
   const [isSideOpen, setIsSideOpen] = useState(false);
   return (
@@ -14,6 +15,7 @@ const HomePage = () => {
         <Route path="/" element={<Navigate to="/facilities" />} />
         <Route path="/users/*" element={<Users />} />
         <Route path="/facilities/*" element={<Facilities />} />
+        <Route path="/settings/*" element={<Settings />} />
       </Routes>
     </>
   );

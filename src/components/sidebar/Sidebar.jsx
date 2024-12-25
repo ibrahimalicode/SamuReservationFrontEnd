@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { AdjustI, UsersI } from "../../assets/icons";
 import { useAuth } from "../../context/AuthContext";
+import MenuI from "../../assets/icons/menu";
 
 const Sidebar = ({ isSideOpen }) => {
   const params = useParams()["*"];
@@ -15,15 +16,21 @@ const Sidebar = ({ isSideOpen }) => {
     },
     {
       label: "Tesisler",
-      icon: <AdjustI />,
+      icon: <MenuI />,
       path: "/facilities",
       param: "facilities",
+    },
+    {
+      label: "Ayarlar",
+      icon: <AdjustI />,
+      path: "/settings",
+      param: "settings",
     },
   ];
   return (
     <aside
       id="logo-sidebar"
-      className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700 ${
+      className={`fixed top-0 left-0 z-40 w-64 h-screen pt-24 transition-transform -translate-x-full bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700 ${
         isSideOpen && "translate-x-0"
       }`}
       aria-label="Sidebar"

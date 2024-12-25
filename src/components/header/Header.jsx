@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 import toast from "react-hot-toast";
+import logo from "../../assets/img/samu-logo.png";
 
 const Header = ({ isSideOpen, setIsSideOpen }) => {
   const { user } = useAuth();
@@ -32,8 +33,8 @@ const Header = ({ isSideOpen, setIsSideOpen }) => {
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-      <div className="px-3 py-3 lg:px-5 lg:pl-3">
-        <div className="flex items-center justify-between">
+      <div className="lg:pl-3 h-20 flex items-center">
+        <div className="flex w-full items-center justify-between pr-5">
           <div className="flex items-center justify-start rtl:justify-end">
             <button
               onClick={() => setIsSideOpen(!isSideOpen)}
@@ -50,12 +51,13 @@ const Header = ({ isSideOpen, setIsSideOpen }) => {
               to="https://holiday.ashamlolie.com"
               className="flex ms-2 md:me-24"
             >
-              {/* <img src={logo} className="h-8 me-3" alt="ashamholiday Logo" /> */}
+              <img src={logo} className="h-8 me-3" alt="ashamholiday Logo" />
               <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
                 Samu Reservasyon
               </span>
             </Link>
           </div>
+
           <div className="flex items-center">
             <div className="flex items-center ms-3 relative">
               <div>

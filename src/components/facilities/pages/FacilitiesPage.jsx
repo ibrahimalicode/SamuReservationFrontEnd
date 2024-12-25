@@ -36,7 +36,7 @@ const FacilitiesPage = () => {
   // console.log(facilitiesData);
 
   return (
-    <section className="md:ml-64 mt-16 px-[4%]">
+    <section className="md:ml-64 mt-20 px-[4%]">
       <div className="w-full flex justify-between py-6 ">
         <h1 className="font-bold text-2xl">Tesisler</h1>
         <div>

@@ -109,7 +109,7 @@ function EditFacilityPopup({ onSuccess, facility }) {
       toast.dismiss();
       setIsLoading(false);
       setPopupContent(null);
-      toast.success("Tesis başarıyla eklendi.");
+      toast.success("Tesis başarıyla güncelendi.");
     } catch (error) {
       toast.dismiss();
       setIsLoading(false);
