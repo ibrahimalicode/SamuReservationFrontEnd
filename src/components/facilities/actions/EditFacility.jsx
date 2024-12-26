@@ -6,12 +6,12 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import DaysEnums from "../../../enums/daysEnums";
 
-const EditFacility = ({ onSuccess, facility }) => {
+const Editfacilitiy = ({ onSuccess, facilitiy }) => {
   const { setPopupContent } = usePopup();
 
   function handleClick() {
     setPopupContent(
-      <EditFacilityPopup onSuccess={onSuccess} facility={facility} />
+      <EditFacilitiyPopup onSuccess={onSuccess} facilitiy={facilitiy} />
     );
   }
   return (
@@ -25,35 +25,19 @@ const EditFacility = ({ onSuccess, facility }) => {
   );
 };
 
-export default EditFacility;
+export default Editfacilitiy;
 
 //
 //POPUP
-function EditFacilityPopup({ onSuccess, facility }) {
+function EditFacilitiyPopup({ onSuccess, facilitiy }) {
   const { setPopupContent } = usePopup();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [facilityData, setFacilityData] = useState(facility);
-  // const [facilityData, setFacilityData] = useState({
-  //   Name: "",
-  //   Description: "",
-  //   MaxUsers: "",
-  //   MinUsers: "",
-  //   UserPerWeek: "",
-  //   Programs: {
-  //     Mon: [],
-  //     Tue: [],
-  //     Wed: [],
-  //     Thu: [],
-  //     Fri: [],
-  //     Sat: [],
-  //     Sun: [],
-  //   },
-  // });
-  console.log(facilityData);
+  const [facilitiyData, setFacilitiyData] = useState(facilitiy);
+  const daysOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const handleAddTime = (day) => {
-    setFacilityData((prev) => ({
+    setFacilitiyData((prev) => ({
       ...prev,
       Programs: {
         ...prev.Programs,
@@ -70,7 +54,7 @@ function EditFacilityPopup({ onSuccess, facility }) {
   };
 
   const handleRemoveTime = (day, index) => {
-    setFacilityData((prev) => ({
+    setFacilitiyData((prev) => ({
       ...prev,
       Programs: {
         ...prev.Programs,
@@ -80,7 +64,7 @@ function EditFacilityPopup({ onSuccess, facility }) {
   };
 
   const handleInputChange = (day, index, field, value) => {
-    setFacilityData((prev) => ({
+    setFacilitiyData((prev) => ({
       ...prev,
       Programs: {
         ...prev.Programs,
@@ -98,10 +82,10 @@ function EditFacilityPopup({ onSuccess, facility }) {
       setIsLoading(true);
       toast.loading("İşleniyor...");
 
-      const facilityRef = doc(db, "Facilities", facilityData.id);
+      const facilitiyRef = doc(db, "Facilities", facilitiyData.id);
 
-      await updateDoc(facilityRef, {
-        ...facilityData,
+      await updateDoc(facilitiyRef, {
+        ...facilitiyData,
         updatedAt: new Date(),
       });
 
@@ -142,9 +126,9 @@ function EditFacilityPopup({ onSuccess, facility }) {
                 type="text"
                 name="Name"
                 id="Name"
-                value={facilityData.Name}
+                value={facilitiyData.Name}
                 onChange={(e) =>
-                  setFacilityData((prev) => {
+                  setFacilitiyData((prev) => {
                     return {
                       ...prev,
                       Name: e.target.value,
@@ -168,9 +152,9 @@ function EditFacilityPopup({ onSuccess, facility }) {
                 type="text"
                 name="Description"
                 id="Description"
-                value={facilityData.Description}
+                value={facilitiyData.Description}
                 onChange={(e) =>
-                  setFacilityData((prev) => {
+                  setFacilitiyData((prev) => {
                     return {
                       ...prev,
                       Description: e.target.value,
@@ -194,9 +178,9 @@ function EditFacilityPopup({ onSuccess, facility }) {
                 type="number"
                 name="MinUsers"
                 id="MinUsers"
-                value={facilityData.MinUsers}
+                value={facilitiyData.MinUsers}
                 onChange={(e) =>
-                  setFacilityData((prev) => {
+                  setFacilitiyData((prev) => {
                     return {
                       ...prev,
                       MinUsers: e.target.value,
@@ -220,9 +204,9 @@ function EditFacilityPopup({ onSuccess, facility }) {
                 type="number"
                 name="MaxUsers"
                 id="MaxUsers"
-                value={facilityData.MaxUsers}
+                value={facilitiyData.MaxUsers}
                 onChange={(e) =>
-                  setFacilityData((prev) => {
+                  setFacilitiyData((prev) => {
                     return {
                       ...prev,
                       MaxUsers: e.target.value,
@@ -246,9 +230,9 @@ function EditFacilityPopup({ onSuccess, facility }) {
                 type="number"
                 name="UserPerWeek"
                 id="UserPerWeek"
-                value={facilityData.UserPerWeek}
+                value={facilitiyData.UserPerWeek}
                 onChange={(e) =>
-                  setFacilityData((prev) => {
+                  setFacilitiyData((prev) => {
                     return {
                       ...prev,
                       UserPerWeek: e.target.value,
@@ -262,7 +246,7 @@ function EditFacilityPopup({ onSuccess, facility }) {
             </div>
           </div>
 
-          {Object.keys(facilityData.Programs).map((day, i) => (
+          {daysOrder.map((day, i) => (
             <div key={i} className="mt-5 border-2 p-2 rounded-md">
               <div className="flex justify-between text-sm font-medium text-gray-900 dark:text-white border-b">
                 <p className="font-bold text-lg">
@@ -276,7 +260,7 @@ function EditFacilityPopup({ onSuccess, facility }) {
                   Saat Ekle
                 </button>
               </div>
-              {facilityData.Programs[day].map((program, index) => (
+              {facilitiyData.Programs[day].map((program, index) => (
                 <React.Fragment key={index}>
                   {index == 0 && (
                     <div className="flex items-center mb-1 space-x-2 text-sm">
@@ -307,7 +291,7 @@ function EditFacilityPopup({ onSuccess, facility }) {
                       }
                       className="p-2 border rounded"
                     />
-                    <div className="min-w-max flex  gap-3">
+                    <div className="min-w-max flex gap-3">
                       <button
                         type="button"
                         onClick={() =>

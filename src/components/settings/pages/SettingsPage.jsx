@@ -83,9 +83,11 @@ const SettingsPage = () => {
   }
 
   return (
-    <section className="md:ml-64 mt-20 px-[4%]">
+    <section className="md:ml-64 pt-20 px-[4%] bg-gray-100 dark:bg-gray-700 min-h-screen">
       <div className="w-full py-6">
-        <h1 className="font-bold text-2xl mb-4">Ayarlar</h1>
+        <h1 className="font-bold text-2xl mb-4 text-gray-900 dark:text-white">
+          Ayarlar
+        </h1>
         {settingsData && (
           <form
             className="space-y-4 md:space-y-6 max-w-3xl"
