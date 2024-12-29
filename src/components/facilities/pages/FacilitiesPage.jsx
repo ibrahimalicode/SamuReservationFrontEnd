@@ -63,6 +63,8 @@ const FacilitiesPage = () => {
       {facilitiesData ? (
         <FacilitiesTable
           facilitiy={tableData}
+          facilities={facilitiesData}
+          setFacilities={setfacilitiesData}
           onSuccess={() => setfacilitiesData(null)}
         />
       ) : (
