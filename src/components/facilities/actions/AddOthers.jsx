@@ -118,6 +118,7 @@ const AddOthers = ({
 
       // Clone current programs
       const updatedPrograms = { ...facilitiy.Programs };
+      const updatedUsers = time?.Users ? time.Users : [];
 
       if (
         !time?.LastTaken ||
@@ -126,7 +127,7 @@ const AddOthers = ({
         // Override Users and set PastUsers
         updatedPrograms[day][index] = {
           ...time,
-          PastUsers: time.Users,
+          PastUsers: updatedUsers,
           Users: usersData,
           LastTaken: selectedDayTimestamp,
         };

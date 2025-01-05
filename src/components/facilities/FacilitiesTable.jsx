@@ -79,7 +79,11 @@ const FacilitiesTable = ({
 
         // Update Firestore
         const facilityRef = doc(db, "Facilities", facilitiy.id);
-        updateDoc(facilityRef, { Programs: updatedPrograms });
+        try {
+          updateDoc(facilityRef, { Programs: updatedPrograms });
+        } catch (err) {
+          throw new Error(err);
+        }
 
         // Update state
         setFacilities(updatedFacilities);
@@ -89,6 +93,7 @@ const FacilitiesTable = ({
 
       // Clone current programs
       const updatedPrograms = { ...facilitiy.Programs };
+      const updatedUsers = time?.Users ? time.Users : [];
 
       if (
         !time?.LastTaken ||
@@ -97,7 +102,7 @@ const FacilitiesTable = ({
         // Override Users and set PastUsers
         updatedPrograms[day][index] = {
           ...time,
-          PastUsers: time.Users,
+          PastUsers: updatedUsers,
           Users: [
             {
               FullName: `${user.FirstName} ${user.LastName}`,
@@ -109,7 +114,6 @@ const FacilitiesTable = ({
         };
       } else {
         // Append the current user to Users
-        const updatedUsers = time?.Users ? time.Users : [];
         updatedPrograms[day][index] = {
           ...time,
           Users: [
@@ -129,6 +133,7 @@ const FacilitiesTable = ({
       console.log(err);
       toast.dismiss(toastId.current);
       toast.error("Bir hata oluştu.");
+      return;
     }
     setPopupContent(null);
     toast.dismiss(toastId.current);
@@ -154,7 +159,7 @@ const FacilitiesTable = ({
   return (
     <main className="overflow-x-auto" key={facilitiy.id}>
       <div className="w-max p-4 relative shadow-lg border-2 border-slate-300 sm:rounded-lg">
-        <div className="flex text-sm justify-between items-end max-w-4xl">
+        <div className="flex text-sm justify-between gap-3 items-end max-w-4xl">
           <div className="flex flex-col gap-2">
             <p>
               <span className="font-bold">Ad:</span> {facilitiy.Name}
