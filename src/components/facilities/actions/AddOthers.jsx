@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CloseI } from "../../../assets/icons";
 import { usePopup } from "../../../context/PopupContext";
 import { doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
@@ -14,6 +14,7 @@ const AddOthers = ({
   facilities,
   setFacilities,
 }) => {
+  const toastId = useRef();
   const { user } = useAuth();
   const { setPopupContent } = usePopup();
   const [email, setEmail] = useState("");
@@ -40,6 +41,8 @@ const AddOthers = ({
     }
 
     try {
+      toastId.current = toast.loading("İşleniyor...");
+
       // Reference the user document by email
       const userRef = doc(db, "Users", email);
       const userSnap = await getDoc(userRef);
@@ -55,16 +58,19 @@ const AddOthers = ({
         setUsersData([...usersData, userData]);
       } else {
         // User does not exist
+        toast.dismiss(toastId.current);
         toast.error("Kullanıcı bulunamadı.");
       }
     } catch (error) {
-      console.error("Error fetching user:", error);
+      toast.dismiss(toastId.current);
       toast.error("Bir hata oluştu.");
+      console.error("Error fetching user:", error);
     }
   }
 
   function handleTakeReservation() {
     if (facilitiy.MinUsers != usersData.length) {
+      toast.dismiss(toastId.current);
       toast.error(
         `Lütfen en az ${facilitiy.MinUsers} en cok ${facilitiy.MaxUsers} kullanıcı ekleyiniz.`
       );
@@ -101,13 +107,12 @@ const AddOthers = ({
         );
         updatedFacilities[facilityIndex].Programs = updatedPrograms;
 
-        // Update state
-        setFacilities(updatedFacilities);
-
         // Update Firestore
         const facilityRef = doc(db, "Facilities", facilitiy.id);
         updateDoc(facilityRef, { Programs: updatedPrograms });
 
+        // Update state
+        setFacilities(updatedFacilities);
         console.log("Updated facilities:", updatedFacilities);
       };
 
@@ -137,11 +142,13 @@ const AddOthers = ({
       updateFacility(updatedPrograms);
     } catch (err) {
       console.log(err);
+      toast.dismiss(toastId.current);
       toast.error("Bir hata oluştu.");
       return;
     }
 
     setPopupContent(null);
+    toast.dismiss(toastId.current);
     toast.success("Randevunuz başarıyla alınmıştır.");
   }
 

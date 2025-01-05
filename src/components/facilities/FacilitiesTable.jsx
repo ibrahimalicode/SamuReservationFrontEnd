@@ -6,6 +6,8 @@ import { db } from "../../firebase";
 import ShowDetails from "./actions/ShowDetails";
 import { usePopup } from "../../context/PopupContext";
 import AddOthers from "./actions/AddOthers";
+import toast from "react-hot-toast";
+import { useRef } from "react";
 
 const FacilitiesTable = ({
   facilitiy,
@@ -13,6 +15,7 @@ const FacilitiesTable = ({
   setFacilities,
   onSuccess,
 }) => {
+  const toastId = useRef();
   const { user } = useAuth();
   const { setPopupContent } = usePopup();
   // Days in proper order
@@ -28,7 +31,7 @@ const FacilitiesTable = ({
     .filter((day) => Object.keys(facilitiy.Programs).includes(day));
 
   function handleTakeReservation(day, index, time) {
-    if (facilitiy.MinUsers > 0) {
+    if (facilitiy.MinUsers > 1) {
       setPopupContent(
         <AddOthers
           day={day}
@@ -41,80 +44,111 @@ const FacilitiesTable = ({
       );
       return;
     }
-    // Helper to calculate the next occurrence of the selected day
-    const getNextOccurrence = (day) => {
-      const targetDayIndex = daysOrder.indexOf(day);
-      const now = new Date();
 
-      // Get the difference in days from today
-      const dayDiff = (targetDayIndex - now.getDay() + 7) % 7;
+    try {
+      toastId.current = toast.loading("İşleniyor...");
+      // Helper to calculate the next occurrence of the selected day
+      const getNextOccurrence = (day) => {
+        const targetDayIndex = daysOrder.indexOf(day);
+        const now = new Date();
 
-      // Calculate the next occurrence of the selected day
-      const nextDate = new Date(now);
-      nextDate.setDate(now.getDate() + dayDiff);
-      nextDate.setHours(0, 0, 0, 0); // Set to start of the day
+        // Get the difference in days from today
+        const dayDiff = (targetDayIndex - now.getDay() + 7) % 7;
 
-      return Timestamp.fromDate(nextDate);
-    };
+        // Calculate the next occurrence of the selected day
+        const nextDate = new Date(now);
+        nextDate.setDate(now.getDate() + dayDiff);
+        nextDate.setHours(0, 0, 0, 0); // Set to start of the day
 
-    // Determine the timestamp for the selected day
-    const selectedDayTimestamp =
-      day === new Date().toLocaleString("en-US", { weekday: "short" })
-        ? Timestamp.now() // If today, use the current timestamp
-        : getNextOccurrence(day); // Otherwise, calculate the next occurrence
-
-    // Helper to update facilities and Firestore
-    const updateFacility = (updatedPrograms) => {
-      const updatedFacilities = [...facilities];
-      const facilityIndex = updatedFacilities.findIndex(
-        (fac) => fac.id === facilitiy.id
-      );
-      updatedFacilities[facilityIndex].Programs = updatedPrograms;
-
-      // Update state
-      setFacilities(updatedFacilities);
-
-      // Update Firestore
-      const facilityRef = doc(db, "Facilities", facilitiy.id);
-      updateDoc(facilityRef, { Programs: updatedPrograms });
-
-      console.log("Updated facilities:", updatedFacilities);
-    };
-
-    // Clone current programs
-    const updatedPrograms = { ...facilitiy.Programs };
-
-    if (time?.LastTaken && Timestamp.now().seconds > time.LastTaken.seconds) {
-      // Override Users and set PastUsers
-      updatedPrograms[day][index] = {
-        ...time,
-        PastUsers: time.Users,
-        Users: [
-          {
-            FullName: `${user.FirstName} ${user.LastName}`,
-            StudentNumber: user.IdNumber,
-            UserId: user.Email,
-          },
-        ],
-        LastTaken: selectedDayTimestamp,
+        return Timestamp.fromDate(nextDate);
       };
-    } else {
-      // Append the current user to Users
-      updatedPrograms[day][index] = {
-        ...time,
-        Users: [
-          ...time.Users,
-          {
-            FullName: `${user.FirstName} ${user.LastName}`,
-            StudentNumber: user.IdNumber,
-            UserId: user.Email,
-          },
-        ],
+
+      // Determine the timestamp for the selected day
+      const selectedDayTimestamp =
+        day === new Date().toLocaleString("en-US", { weekday: "short" })
+          ? Timestamp.now() // If today, use the current timestamp
+          : getNextOccurrence(day); // Otherwise, calculate the next occurrence
+
+      // Helper to update facilities and Firestore
+      const updateFacility = (updatedPrograms) => {
+        const updatedFacilities = [...facilities];
+        const facilityIndex = updatedFacilities.findIndex(
+          (fac) => fac.id === facilitiy.id
+        );
+        updatedFacilities[facilityIndex].Programs = updatedPrograms;
+
+        // Update Firestore
+        const facilityRef = doc(db, "Facilities", facilitiy.id);
+        updateDoc(facilityRef, { Programs: updatedPrograms });
+
+        // Update state
+        setFacilities(updatedFacilities);
+
+        console.log("Updated facilities:", updatedFacilities);
       };
+
+      // Clone current programs
+      const updatedPrograms = { ...facilitiy.Programs };
+
+      if (
+        !time?.LastTaken ||
+        Timestamp.now().seconds > time.LastTaken.seconds
+      ) {
+        // Override Users and set PastUsers
+        updatedPrograms[day][index] = {
+          ...time,
+          PastUsers: time.Users,
+          Users: [
+            {
+              FullName: `${user.FirstName} ${user.LastName}`,
+              StudentNumber: user.IdNumber,
+              UserId: user.Email,
+            },
+          ],
+          LastTaken: selectedDayTimestamp,
+        };
+      } else {
+        // Append the current user to Users
+        const updatedUsers = time?.Users ? time.Users : [];
+        updatedPrograms[day][index] = {
+          ...time,
+          Users: [
+            ...updatedUsers,
+            {
+              FullName: `${user.FirstName} ${user.LastName}`,
+              StudentNumber: user.IdNumber,
+              UserId: user.Email,
+            },
+          ],
+        };
+      }
+
+      // Apply updates
+      updateFacility(updatedPrograms);
+    } catch (err) {
+      console.log(err);
+      toast.dismiss(toastId.current);
+      toast.error("Bir hata oluştu.");
     }
+    setPopupContent(null);
+    toast.dismiss(toastId.current);
+    toast.success("Randevunuz başarıyla alınmıştır.");
+  }
 
-    // Apply updates
-    updateFacility(updatedPrograms);
+  function isTaken(time) {
+    const isFull = time?.Users?.length >= facilitiy.MaxUsers;
+    const taken =
+      time?.Users?.some((U) => U.UserId == user.Email) &&
+      time?.LastTaken?.seconds > Timestamp.now().seconds;
+    return { isFull, taken };
+  }
+
+  function handleShowDetails(time) {
+    if (time?.LastTaken?.seconds > Timestamp.now().seconds) {
+      setPopupContent(<ShowDetails data={time} />);
+    } else {
+      setPopupContent(<ShowDetails data={{ Users: [] }} />);
+    }
   }
 
   return (
@@ -164,13 +198,11 @@ const FacilitiesTable = ({
                 {facilitiy.Programs[sortedPrograms[index]].map((time, i) => (
                   <div
                     key={i}
-                    className="border rounded-md overflow-clip cursor-pointer"
+                    className={`border rounded-md overflow-clip cursor-pointer`}
                   >
                     <div
                       className="bg-slate-400/30 w-32 py-1.5 mb-1"
-                      onClick={() =>
-                        setPopupContent(<ShowDetails data={time} />)
-                      }
+                      onClick={() => handleShowDetails(time)}
                     >
                       <p>{time.Gender == 0 ? "Kız" : "Erkek"}</p>
                       <p>
@@ -184,16 +216,24 @@ const FacilitiesTable = ({
                     <p className="py-2.5">
                       {time.StartTime}-{time.EndTime}
                     </p>
-                    {/* {time.Users.map((user) => (
-                    <div key={user.UserId}>{user.FullName}</div>
-                  ))} */}
                     <button
                       onClick={() =>
                         handleTakeReservation(sortedPrograms[index], i, time)
                       }
-                      className="text-white bg-blue-700 hover:bg-blue-800 rounded-sm text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 px-2 py-1.5 mb-1"
+                      disabled={isTaken(time).isFull || isTaken(time).taken}
+                      className={`w-full text-white rounded-sm text-sm py-1.5 mb-1 ${
+                        isTaken(time).taken
+                          ? "bg-green-700 dark:bg-green-600"
+                          : isTaken(time).isFull
+                          ? "bg-red-700 dark:bg-red-600"
+                          : "bg-blue-700 dark:bg-blue-600"
+                      }`}
                     >
-                      Reservasyon al
+                      {isTaken(time).taken
+                        ? "Alındı"
+                        : isTaken(time).isFull
+                        ? "Dolu"
+                        : "Reservasyon al"}
                     </button>
                   </div>
                 ))}
