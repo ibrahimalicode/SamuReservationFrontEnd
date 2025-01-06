@@ -88,15 +88,22 @@ const AddOthers = ({
         // Calculate the next occurrence of the selected day
         const nextDate = new Date(now);
         nextDate.setDate(now.getDate() + dayDiff);
-        nextDate.setHours(0, 0, 0, 0); // Set to start of the day
+        nextDate.setHours(23, 59, 0, 0); // Set to start of the day
 
         return Timestamp.fromDate(nextDate);
       };
 
+      // Helper function to set the time to 12:59 PM
+      function setToLastHour(timestamp) {
+        const date = timestamp.toDate(); // Convert Firestore Timestamp to JS Date
+        date.setHours(23, 59, 0, 0); // Set time to 11:59 PM
+        return Timestamp.fromDate(date); // Convert back to Firestore Timestamp
+      }
+
       // Determine the timestamp for the selected day
       const selectedDayTimestamp =
         day === new Date().toLocaleString("en-US", { weekday: "short" })
-          ? Timestamp.now() // If today, use the current timestamp
+          ? setToLastHour(Timestamp.now()) // If today, use current day at 12:59 PM
           : getNextOccurrence(day); // Otherwise, calculate the next occurrence
 
       // Helper to update facilities and Firestore

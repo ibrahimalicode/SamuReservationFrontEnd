@@ -58,15 +58,22 @@ const FacilitiesTable = ({
         // Calculate the next occurrence of the selected day
         const nextDate = new Date(now);
         nextDate.setDate(now.getDate() + dayDiff);
-        nextDate.setHours(0, 0, 0, 0); // Set to start of the day
+        nextDate.setHours(23, 59, 0, 0); // Set to end of the day
 
         return Timestamp.fromDate(nextDate);
       };
 
+      // Helper function to set the time to 12:59 PM
+      function setToLastHour(timestamp) {
+        const date = timestamp.toDate(); // Convert Firestore Timestamp to JS Date
+        date.setHours(23, 59, 0, 0); // Set time to 11:59 PM
+        return Timestamp.fromDate(date); // Convert back to Firestore Timestamp
+      }
+
       // Determine the timestamp for the selected day
       const selectedDayTimestamp =
         day === new Date().toLocaleString("en-US", { weekday: "short" })
-          ? Timestamp.now() // If today, use the current timestamp
+          ? setToLastHour(Timestamp.now()) // If today, use current day at 12:59 PM
           : getNextOccurrence(day); // Otherwise, calculate the next occurrence
 
       // Helper to update facilities and Firestore
@@ -97,7 +104,7 @@ const FacilitiesTable = ({
 
       if (
         !time?.LastTaken ||
-        Timestamp.now().seconds > time.LastTaken.seconds
+        Timestamp.now().seconds > time?.LastTaken?.seconds
       ) {
         // Override Users and set PastUsers
         updatedPrograms[day][index] = {
@@ -141,15 +148,16 @@ const FacilitiesTable = ({
   }
 
   function isTaken(time) {
-    const isFull = time?.Users?.length >= facilitiy.MaxUsers;
+    const isTimePassed = Timestamp.now().seconds > time?.LastTaken?.seconds;
+    const isFull = time?.Users?.length >= facilitiy.MaxUsers && !isTimePassed;
     const taken =
-      time?.Users?.some((U) => U.UserId == user.Email) &&
-      time?.LastTaken?.seconds > Timestamp.now().seconds;
+      time?.Users?.some((U) => U.UserId == user.Email) && !isTimePassed;
     return { isFull, taken };
   }
 
   function handleShowDetails(time) {
-    if (time?.LastTaken?.seconds > Timestamp.now().seconds) {
+    const isTimePassed = Timestamp.now().seconds > time?.LastTaken?.seconds;
+    if (!isTimePassed) {
       setPopupContent(<ShowDetails data={time} />);
     } else {
       setPopupContent(<ShowDetails data={{ Users: [] }} />);
@@ -221,25 +229,27 @@ const FacilitiesTable = ({
                     <p className="py-2.5">
                       {time.StartTime}-{time.EndTime}
                     </p>
-                    <button
-                      onClick={() =>
-                        handleTakeReservation(sortedPrograms[index], i, time)
-                      }
-                      disabled={isTaken(time).isFull || isTaken(time).taken}
-                      className={`w-full text-white rounded-sm text-sm py-1.5 mb-1 ${
-                        isTaken(time).taken
-                          ? "bg-green-700 dark:bg-green-600"
+                    {user.Auth !== 0 && (
+                      <button
+                        onClick={() =>
+                          handleTakeReservation(sortedPrograms[index], i, time)
+                        }
+                        disabled={isTaken(time).isFull || isTaken(time).taken}
+                        className={`w-full text-white rounded-sm text-sm py-1.5 mb-1 ${
+                          isTaken(time).taken
+                            ? "bg-green-700 dark:bg-green-600"
+                            : isTaken(time).isFull
+                            ? "bg-red-700 dark:bg-red-600"
+                            : "bg-blue-700 dark:bg-blue-600"
+                        }`}
+                      >
+                        {isTaken(time).taken
+                          ? "Alındı"
                           : isTaken(time).isFull
-                          ? "bg-red-700 dark:bg-red-600"
-                          : "bg-blue-700 dark:bg-blue-600"
-                      }`}
-                    >
-                      {isTaken(time).taken
-                        ? "Alındı"
-                        : isTaken(time).isFull
-                        ? "Dolu"
-                        : "Reservasyon al"}
-                    </button>
+                          ? "Dolu"
+                          : "Reservasyon al"}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>

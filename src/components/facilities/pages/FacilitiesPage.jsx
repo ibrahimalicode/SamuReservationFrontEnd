@@ -33,15 +33,17 @@ const FacilitiesPage = () => {
     }
   }, [facilitiesData, user]);
 
-  // console.log(facilitiesData);
+  console.log(user);
 
   return (
     <section className="md:ml-64 pt-20 px-[4%] bg-gray-100 dark:bg-gray-700 min-h-screen text-gray-900 dark:text-white">
       <div className="w-full flex justify-between py-6">
         <h1 className="font-bold text-2xl">Tesisler</h1>
-        <div>
-          <AddFacility onSuccess={() => setfacilitiesData(null)} />
-        </div>
+        {user.Auth === 0 && (
+          <div>
+            <AddFacility onSuccess={() => setfacilitiesData(null)} />
+          </div>
+        )}
       </div>
 
       <div className="flex gap-4 mb-3">
