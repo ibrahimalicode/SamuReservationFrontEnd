@@ -5,10 +5,12 @@ import Sidebar from "../components/sidebar/Sidebar";
 import Users from "./Users";
 import Facilities from "./Facilities";
 import Settings from "./Settings";
+import ShowNotification from "../components/notification/ShowNotification";
 const HomePage = () => {
   const [isSideOpen, setIsSideOpen] = useState(false);
   return (
     <>
+      <ShowNotification />
       <Header isSideOpen={isSideOpen} setIsSideOpen={setIsSideOpen} />
       <Sidebar isSideOpen={isSideOpen} setIsSideOpen={setIsSideOpen} />
       <Routes>

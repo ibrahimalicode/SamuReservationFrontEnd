@@ -1,7 +1,7 @@
 import { useState } from "react";
 import UserActions from "./actions/UserActions";
 
-const UsersTable = ({ users, onSuccess }) => {
+const UsersTable = ({ users }) => {
   const [open, setOpen] = useState(null);
   return (
     <div className="relative h-max sm:rounded-lg overflow-x-auto ">
@@ -60,7 +60,6 @@ const UsersTable = ({ users, onSuccess }) => {
                   open={open}
                   setOpen={setOpen}
                   user={user}
-                  onSuccess={onSuccess}
                   itemNumber={users.length}
                 />
               </td>

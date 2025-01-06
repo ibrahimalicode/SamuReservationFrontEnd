@@ -17,8 +17,10 @@ const ShowDetails = ({ data }) => {
         <table className="table-auto border-collapse border border-gray-300 w-full">
           <thead>
             <tr className="">
-              <th className="border border-gray-300 px-4 py-2 text-left">Ad</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">
+              <th className="border border-gray-300 px-4 py-2 text-left whitespace-nowrap">
+                Ad
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left whitespace-nowrap">
                 Öğrenci Numarası
               </th>
             </tr>
@@ -26,10 +28,10 @@ const ShowDetails = ({ data }) => {
           <tbody>
             {data?.Users?.map((user, i) => (
               <tr key={i}>
-                <td className="border border-gray-300 px-4 py-2">
+                <td className="border border-gray-300 px-4 py-2 whitespace-nowrap">
                   {user.FullName}
                 </td>
-                <td className="border border-gray-300 px-4 py-2">
+                <td className="border border-gray-300 px-4 py-2 whitespace-nowrap">
                   {user.StudentNumber}
                 </td>
               </tr>

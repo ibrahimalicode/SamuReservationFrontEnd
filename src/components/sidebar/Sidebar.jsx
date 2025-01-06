@@ -3,28 +3,31 @@ import { AdjustI, UsersI } from "../../assets/icons";
 import { useAuth } from "../../context/AuthContext";
 import MenuI from "../../assets/icons/menu";
 
-const Sidebar = ({ isSideOpen }) => {
+const Sidebar = ({ isSideOpen, setIsSideOpen }) => {
   const params = useParams()["*"];
   const { user } = useAuth();
 
   const sidebar = [
-    user.Auth === 0 && {
+    {
       label: "Kullanıcılar",
       icon: <UsersI />,
       path: "/users",
       param: "users",
+      show: user.Auth === 0,
     },
     {
       label: "Tesisler",
       icon: <MenuI />,
       path: "/facilities",
       param: "facilities",
+      show: true,
     },
     {
       label: "Ayarlar",
       icon: <AdjustI />,
       path: "/settings",
       param: "settings",
+      show: user.Auth === 0,
     },
   ];
   return (
@@ -37,20 +40,23 @@ const Sidebar = ({ isSideOpen }) => {
     >
       <div className="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
         <ul className="space-y-2 font-normal">
-          {sidebar.map((side) => (
-            <li key={side.label}>
-              <Link
-                to={side.path}
-                className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${
-                  params === side.param &&
-                  "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
-                }`}
-              >
-                {side.icon}
-                <span className="ms-3">{side.label}</span>
-              </Link>
-            </li>
-          ))}
+          {sidebar
+            .filter((S) => S.show)
+            .map((side) => (
+              <li key={side.label}>
+                <Link
+                  to={side.path}
+                  onClick={() => setIsSideOpen(false)}
+                  className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${
+                    params === side.param &&
+                    "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                  }`}
+                >
+                  {side.icon}
+                  <span className="ms-3">{side.label}</span>
+                </Link>
+              </li>
+            ))}
         </ul>
       </div>
     </aside>

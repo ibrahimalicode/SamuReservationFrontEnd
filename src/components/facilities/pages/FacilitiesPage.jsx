@@ -1,39 +1,20 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import TableSkeleton from "../../common/TableSkeleton";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../firebase";
-import { useAuth } from "../../../context/AuthContext";
 import FacilitiesTable from "../FacilitiesTable";
 import AddFacility from "../actions/AddFacility";
+import TableSkeleton from "../../common/TableSkeleton";
+import { useAuth } from "../../../context/AuthContext";
+import { useAppContext } from "../../../context/AppContext";
 
 const FacilitiesPage = () => {
   const { user } = useAuth();
-  const [facilitiesData, setfacilitiesData] = useState(null);
-  const [tableData, setTableData] = useState();
+  const { facilitiesData, setFacilitiesData } = useAppContext();
+  const [tableData, setTableData] = useState(null);
 
   useEffect(() => {
-    const fetchFacilities = async () => {
-      try {
-        const facilitiesCollection = collection(db, "Facilities");
-        const facilitiesSnapshot = await getDocs(facilitiesCollection);
-        const facilitiesList = facilitiesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setTableData(facilitiesList[0]);
-        setfacilitiesData(facilitiesList);
-      } catch (error) {
-        console.error("Error fetching facilities:", error);
-        toast.error("Bir hata oluştu.");
-      }
-    };
-    if (!facilitiesData) {
-      fetchFacilities();
+    if (facilitiesData) {
+      setTableData(facilitiesData[0]);
     }
-  }, [facilitiesData, user]);
-
-  console.log(user);
+  }, [facilitiesData]);
 
   return (
     <section className="md:ml-64 pt-20 px-[4%] bg-gray-100 dark:bg-gray-700 min-h-screen text-gray-900 dark:text-white">
@@ -41,7 +22,7 @@ const FacilitiesPage = () => {
         <h1 className="font-bold text-2xl">Tesisler</h1>
         {user.Auth === 0 && (
           <div>
-            <AddFacility onSuccess={() => setfacilitiesData(null)} />
+            <AddFacility />
           </div>
         )}
       </div>
@@ -62,12 +43,11 @@ const FacilitiesPage = () => {
         ))}
       </div>
 
-      {facilitiesData ? (
+      {facilitiesData && tableData ? (
         <FacilitiesTable
           facilitiy={tableData}
           facilities={facilitiesData}
-          setFacilities={setfacilitiesData}
-          onSuccess={() => setfacilitiesData(null)}
+          setFacilities={setFacilitiesData}
         />
       ) : (
         <TableSkeleton />

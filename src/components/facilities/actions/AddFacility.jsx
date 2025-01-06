@@ -1,15 +1,15 @@
+import toast from "react-hot-toast";
+import { db } from "../../../firebase";
 import React, { useState } from "react";
 import { CloseI } from "../../../assets/icons";
 import { usePopup } from "../../../context/PopupContext";
-import toast from "react-hot-toast";
 import { collection, doc, setDoc } from "firebase/firestore";
-import { db } from "../../../firebase";
 
-const AddFacility = ({ onSuccess }) => {
+const AddFacility = () => {
   const { setPopupContent } = usePopup();
 
   function handleClick() {
-    setPopupContent(<AddFacilityPopup onSuccess={onSuccess} />);
+    setPopupContent(<AddFacilityPopup />);
   }
   return (
     <button
@@ -26,7 +26,7 @@ export default AddFacility;
 
 //
 //POPUP
-function AddFacilityPopup({ onSuccess }) {
+function AddFacilityPopup() {
   const { setPopupContent } = usePopup();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -99,7 +99,6 @@ function AddFacilityPopup({ onSuccess }) {
         createdAt: new Date(),
       });
 
-      onSuccess();
       toast.dismiss();
       setIsLoading(false);
       setPopupContent(null);
@@ -219,6 +218,32 @@ function AddFacilityPopup({ onSuccess }) {
                   return {
                     ...prev,
                     MaxUsers: e.target.value,
+                  };
+                })
+              }
+              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-blue-600 focus:border-blue-600 block w-full px-2.5 py-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Max"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="UserPerDay"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
+              Kullanıcının Günde Max Rezervasyon Sayısı
+            </label>
+            <input
+              type="number"
+              name="UserPerDay"
+              id="UserPerDay"
+              value={facilityData.UserPerDay}
+              onChange={(e) =>
+                setFacilityData((prev) => {
+                  return {
+                    ...prev,
+                    UserPerDay: e.target.value,
                   };
                 })
               }

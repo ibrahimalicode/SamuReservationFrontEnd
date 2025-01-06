@@ -1,7 +1,7 @@
 import MenuI from "../../../assets/icons/menu";
 import EditUser from "./EditUser";
 
-const UserActions = ({ index, open, setOpen, onSuccess, user, itemNumber }) => {
+const UserActions = ({ index, open, setOpen, user, itemNumber }) => {
   function handleMenuOpen() {
     setOpen(open === index ? null : index);
   }
@@ -18,7 +18,7 @@ const UserActions = ({ index, open, setOpen, onSuccess, user, itemNumber }) => {
         } ${open !== index ? "hidden" : index}`}
       >
         <ul>
-          <EditUser onSuccess={onSuccess} user={user} setOpen={setOpen} />
+          <EditUser user={user} setOpen={setOpen} />
         </ul>
       </div>
     </div>

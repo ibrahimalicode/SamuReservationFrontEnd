@@ -1,30 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { useAuth } from "../../../context/AuthContext";
+import { useAppContext } from "../../../context/AppContext";
 
 const SettingsPage = () => {
-  const { user } = useAuth();
-  const [settingsData, setSettingsData] = useState(null);
+  const { settingsData, setSettingsData } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const settingsRef = doc(db, "SiteSettings", "data");
-        const settingsSnapshot = await getDoc(settingsRef);
-        const settingsData = settingsSnapshot.data();
-        setSettingsData(settingsData);
-      } catch (error) {
-        console.error("Error fetching settings:", error);
-        toast.error("Bir hata oluştu.");
-      }
-    };
-    if (!settingsData) {
-      fetchSettings();
-    }
-  }, [settingsData, user]);
+  const [showNotifications, setShowNotifications] = useState(
+    settingsData?.ShowNotifications
+  );
+  const [notification, setNotification] = useState(settingsData.Notifications);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,6 +54,8 @@ const SettingsPage = () => {
 
       await updateDoc(settingsRef, {
         ...settingsData,
+        ShowNotifications: showNotifications,
+        Notifications: notification,
         updatedAt: new Date(),
       });
 
@@ -81,6 +69,8 @@ const SettingsPage = () => {
       console.error("Error during registration:", error.message);
     }
   }
+
+  console.log(settingsData);
 
   return (
     <section className="md:ml-64 pt-20 px-[4%] bg-gray-100 dark:bg-gray-700 min-h-screen">
@@ -101,13 +91,13 @@ const SettingsPage = () => {
                 >
                   Duyuru
                 </label>
-                <input
+                <textarea
                   type="text"
                   name="Notifications"
                   id="Notifications"
-                  value={settingsData.Notifications}
-                  onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  value={notification}
+                  onChange={(e) => setNotification(e.target.value)}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full h-32 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 />
               </div>
 
@@ -121,8 +111,8 @@ const SettingsPage = () => {
                 <input
                   type="checkbox"
                   name="ShowNotifications"
-                  checked={settingsData.ShowNotifications}
-                  onChange={handleChange}
+                  checked={showNotifications}
+                  onChange={() => setShowNotifications(!showNotifications)}
                   className="size-5 mx-3 mt-2"
                 />
               </div>
@@ -172,25 +162,31 @@ const SettingsPage = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full px-2.5 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   />
                 </div>
-                <div className="w-full">
-                  <label
-                    htmlFor={-i}
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                <div className="flex w-full">
+                  <div className="w-full">
+                    <label
+                      htmlFor={-i}
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Sosyal Medya Link
+                    </label>
+                    <input
+                      type="text"
+                      name={-i}
+                      id={-i}
+                      value={link.Link}
+                      onChange={(e) => handleInputChange(e, i, "Link")}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full px-2.5 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSocial(i)}
+                    className="mt-6 pl-3"
                   >
-                    Sosyal Medya Link
-                  </label>
-                  <input
-                    type="text"
-                    name={-i}
-                    id={-i}
-                    value={link.Link}
-                    onChange={(e) => handleInputChange(e, i, "Link")}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full px-2.5 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  />
+                    ❌
+                  </button>
                 </div>
-                <button onClick={() => handleRemoveSocial(i)} className="mt-6">
-                  ❌
-                </button>
               </div>
             ))}
 

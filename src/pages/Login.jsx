@@ -1,13 +1,13 @@
-import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { auth, db } from "../firebase";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
-import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 import { deleteField, doc, getDoc, updateDoc } from "firebase/firestore";
 
 const LoginPage = () => {
@@ -151,10 +151,10 @@ const LoginPage = () => {
   }
 
   return (
-    <section className="bg-gray-50 dark:bg-gray-900">
+    <section className="bg-gray-50 dark:bg-gray-900 h-screen">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+          <div className="py-6 px-3 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center">
               Giriş Yap
             </h1>
@@ -176,6 +176,7 @@ const LoginPage = () => {
                   required
                 />
               </div>
+
               <div>
                 <label
                   htmlFor="password"
@@ -215,7 +216,7 @@ const LoginPage = () => {
                 <p>
                   <Link
                     to="/forget-password"
-                    className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                    className="font-medium text-blue-600 hover:underline dark:text-blue-500 whitespace-nowrap"
                   >
                     Şifremi unuttum?
                   </Link>

@@ -69,7 +69,10 @@ const AddOthers = ({
   }
 
   function handleTakeReservation() {
-    if (facilitiy.MinUsers != usersData.length) {
+    if (
+      usersData.length < facilitiy.MinUsers ||
+      usersData.length > facilitiy.MaxUsers
+    ) {
       toast.dismiss(toastId.current);
       toast.error(
         `Lütfen en az ${facilitiy.MinUsers} en cok ${facilitiy.MaxUsers} kullanıcı ekleyiniz.`
@@ -161,7 +164,7 @@ const AddOthers = ({
   }
 
   return (
-    <main className="py-8 px-4 max-h-[50rem] overflow-y-auto relative dark:text-white">
+    <main className="py-8 px-4 max-h-[50rem] overflow-y-auto overflow-x-clip relative dark:text-white">
       <h1 className="text-center font-bold text-2xl">Kullanıcı Seç</h1>
       <button
         type="button"
@@ -201,7 +204,7 @@ const AddOthers = ({
         </div>
       </form>
 
-      <div className="mt-4">
+      <div className="mt-4 overflow-x-auto">
         {usersData.length > 0 ? (
           <table className="table-auto border-collapse border border-gray-300 w-full text-sm">
             <thead>
@@ -220,9 +223,13 @@ const AddOthers = ({
             <tbody>
               {usersData.map((U, i) => (
                 <tr key={i} className="hover:bg-gray-100">
-                  <td className="border border-gray-300 px-4">{U.FullName}</td>
-                  <td className="border border-gray-300 px-4">{U.UserId}</td>
-                  <td className="border border-gray-300 px-4">
+                  <td className="border border-gray-300 px-4 whitespace-nowrap">
+                    {U.FullName}
+                  </td>
+                  <td className="border border-gray-300 px-4 whitespace-nowrap">
+                    {U.UserId}
+                  </td>
+                  <td className="border border-gray-300 px-4 whitespace-nowrap">
                     <button
                       disabled={U.UserId == user.Email}
                       onClick={() => {

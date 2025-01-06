@@ -7,12 +7,19 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { usePopup } from "../context/PopupContext";
+import { useAppContext } from "../context/AppContext";
+import { CloseI } from "../assets/icons";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { setPopupContent } = usePopup();
+  const { settingsData } = useAppContext();
   const [Code, setCode] = useState("");
   const [toVerify, setToVerify] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
+
   const [userData, setUserData] = useState({
     FirstName: "",
     LastName: "",
@@ -127,6 +134,25 @@ const RegisterPage = () => {
       toast.error("Bir hata oluştu. Lütfen tekrar deneyiniz");
       console.error("Error during registration:", error.message);
     }
+  }
+
+  function ShowPrivacyText() {
+    const html = (
+      <main className="text-gray-900 dark:text-white pb-4 px-3">
+        <div className="py-8 px-4 max-h-[50rem] overflow-y-auto relative">
+          <h1 className="text-center font-bold text-2xl">Şartlar</h1>
+          <button
+            type="button"
+            className="absolute top-8 right-8 hover:text-red-600 border rounded-full p-2 hover:border-red-600"
+            onClick={() => setPopupContent(null)}
+          >
+            <CloseI />
+          </button>
+        </div>
+        <div className="text-center">{settingsData?.PrivacyText}</div>
+      </main>
+    );
+    setPopupContent(html);
   }
 
   return (
@@ -424,6 +450,27 @@ const RegisterPage = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   />
+                </div>
+
+                <div className="flex items-center pt-6">
+                  <input
+                    required
+                    name="checked"
+                    type="checkbox"
+                    checked={checked}
+                    className="size-5 mx-3"
+                    onChange={() => setChecked(!checked)}
+                  />
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    Şartlarını{" "}
+                    <span
+                      className="text-blue-600 cursor-pointer"
+                      onClick={ShowPrivacyText}
+                    >
+                      okudum
+                    </span>{" "}
+                    ve onaylıyorum.
+                  </div>
                 </div>
 
                 <button

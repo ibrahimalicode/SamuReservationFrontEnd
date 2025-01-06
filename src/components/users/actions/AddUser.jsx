@@ -5,11 +5,11 @@ import toast from "react-hot-toast";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 
-const AddUser = ({ onSuccess }) => {
+const AddUser = () => {
   const { setPopupContent } = usePopup();
 
   function handleClick() {
-    setPopupContent(<AddUserPopup onSuccess={onSuccess} />);
+    setPopupContent(<AddUserPopup />);
   }
   return (
     <button
@@ -26,7 +26,7 @@ export default AddUser;
 
 //
 //POPUP
-function AddUserPopup({ onSuccess }) {
+function AddUserPopup() {
   const { setPopupContent } = usePopup();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -98,7 +98,6 @@ function AddUserPopup({ onSuccess }) {
         createdAt: new Date(),
       });
 
-      onSuccess();
       toast.dismiss();
       setIsLoading(false);
       setPopupContent(null);

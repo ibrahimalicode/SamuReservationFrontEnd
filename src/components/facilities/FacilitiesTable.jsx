@@ -9,12 +9,7 @@ import AddOthers from "./actions/AddOthers";
 import toast from "react-hot-toast";
 import { useRef } from "react";
 
-const FacilitiesTable = ({
-  facilitiy,
-  facilities,
-  setFacilities,
-  onSuccess,
-}) => {
+const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
   const toastId = useRef();
   const { user } = useAuth();
   const { setPopupContent } = usePopup();
@@ -149,13 +144,20 @@ const FacilitiesTable = ({
 
   function isTaken(time) {
     const isTimePassed = Timestamp.now().seconds > time?.LastTaken?.seconds;
-    const isFull = time?.Users?.length >= facilitiy.MaxUsers && !isTimePassed;
+    const withMinUsers =
+      time?.Users?.length >= facilitiy.MinUsers ||
+      time?.Users?.length == facilitiy.MaxUsers;
+    const withOutMinUsers = time?.Users?.length >= facilitiy.MaxUsers;
+    const isFull =
+      (facilitiy.MinUsers != 0 ? withMinUsers : withOutMinUsers) &&
+      !isTimePassed;
     const taken =
       time?.Users?.some((U) => U.UserId == user.Email) && !isTimePassed;
     return { isFull, taken };
   }
 
   function handleShowDetails(time) {
+    if (user.Auth !== 0) return;
     const isTimePassed = Timestamp.now().seconds > time?.LastTaken?.seconds;
     if (!isTimePassed) {
       setPopupContent(<ShowDetails data={time} />);
@@ -189,12 +191,22 @@ const FacilitiesTable = ({
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 items-end">
-            <EditFacility facilitiy={facilitiy} onSuccess={onSuccess} />
+          <div className="flex flex-col gap-2">
             <p>
-              <span className="font-bold">Bir Kullanıcı Haftada:</span> 3
+              <span className="font-bold">Bir Kullanıcı Günde:</span>{" "}
+              {facilitiy.UserPerDay}
+            </p>
+            <p>
+              <span className="font-bold">Bir Kullanıcı Haftada:</span>{" "}
+              {facilitiy.UserPerWeek}
             </p>
           </div>
+
+          {user?.Auth === 0 && (
+            <div>
+              <EditFacility facilitiy={facilitiy} />
+            </div>
+          )}
         </div>
 
         <div className="w-full">
@@ -244,7 +256,7 @@ const FacilitiesTable = ({
                         }`}
                       >
                         {isTaken(time).taken
-                          ? "Alındı"
+                          ? "Aldınız"
                           : isTaken(time).isFull
                           ? "Dolu"
                           : "Reservasyon al"}

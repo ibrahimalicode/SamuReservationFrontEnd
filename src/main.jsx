@@ -5,13 +5,16 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { PopupProvider } from "./context/PopupContext.jsx";
+import { AppContextProvider } from "./context/AppContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
-      <PopupProvider>
-        <App />
-      </PopupProvider>
+      <AppContextProvider>
+        <PopupProvider>
+          <App />
+        </PopupProvider>
+      </AppContextProvider>
     </AuthProvider>
     <Toaster
       position="top-center"
