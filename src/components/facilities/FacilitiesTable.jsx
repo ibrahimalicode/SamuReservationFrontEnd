@@ -25,7 +25,58 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
     .concat(daysOrder.slice(0, currentDayIndex))
     .filter((day) => Object.keys(facilitiy.Programs).includes(day));
 
+  function checkUserPerDayWeek(day) {
+    let dayReservationCount = 0;
+    let weekReservationCount = 0;
+
+    facilitiy.Programs[day].map((time) => {
+      if (
+        time?.LastTaken &&
+        new Date(time?.LastTaken.seconds * 1000).toISOString() >
+          new Date(Timestamp.now().seconds * 1000).toISOString() &&
+        time.Users.some((U) => U.StudentNumber === user.IdNumber)
+      ) {
+        dayReservationCount++;
+      }
+    });
+
+    if (dayReservationCount < facilitiy.UserPerDay) {
+      Object.keys(facilitiy.Programs).map((prg) =>
+        facilitiy.Programs[prg].map((time) => {
+          if (
+            time?.LastTaken &&
+            new Date(time?.LastTaken.seconds * 1000).toISOString() >
+              new Date(Timestamp.now().seconds * 1000).toISOString() &&
+            time.Users.some((U) => U.StudentNumber === user.IdNumber)
+          ) {
+            weekReservationCount++;
+          }
+        })
+      );
+      // console.log("Haftada alinan", weekReservationCount);
+      if (!(weekReservationCount < facilitiy.UserPerWeek)) {
+        toast.dismiss();
+        toast.error(
+          `Bu hafta için olan ${facilitiy.UserPerWeek} rezervasyon hakkınızı kullandınız.`
+        );
+        return false;
+      }
+    }
+    // console.log("Gunde alinan", dayReservationCount);
+    if (!(dayReservationCount < facilitiy.UserPerDay)) {
+      toast.dismiss();
+      toast.error(
+        `Bir gün için olan ${facilitiy.UserPerDay} rezervasyon hakkınızı kullandınız.`
+      );
+      return false;
+    }
+
+    return true;
+  }
+
   function handleTakeReservation(day, index, time) {
+    if (!checkUserPerDayWeek(day)) return;
+
     if (facilitiy.MinUsers > 1) {
       setPopupContent(
         <AddOthers
@@ -90,7 +141,7 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
         // Update state
         setFacilities(updatedFacilities);
 
-        console.log("Updated facilities:", updatedFacilities);
+        // console.log("Updated facilities:", updatedFacilities);
       };
 
       // Clone current programs
