@@ -26,7 +26,7 @@ export default EditUser;
 
 //
 //POPUP
-function EditUserPopup({ user, onSuccess }) {
+function EditUserPopup({ user }) {
   const { setPopupContent } = usePopup();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -62,7 +62,6 @@ function EditUserPopup({ user, onSuccess }) {
     try {
       // Update user data in Firestore
       await updateDoc(doc(db, "Users", id), userData);
-      onSuccess();
       toast.dismiss();
       setIsLoading(false);
       setPopupContent(null);
