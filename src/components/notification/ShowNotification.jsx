@@ -11,7 +11,7 @@ const ShowNotification = () => {
     if (settingsData?.ShowNotifications) {
       const html = (
         <main className="text-gray-900 dark:text-white pb-4">
-          <div className="py-8 px-4 max-h-[50rem] overflow-y-auto relative">
+          <div className="py-8 px-4 max-h-[95vh] overflow-y-auto relative">
             <h1 className="text-center font-bold text-2xl">Duyuru</h1>
             <button
               type="button"

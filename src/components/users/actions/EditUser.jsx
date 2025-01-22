@@ -75,7 +75,7 @@ function EditUserPopup({ user }) {
   }
 
   return (
-    <div className="py-8 px-4 max-h-[50rem] overflow-y-auto relative">
+    <div className="py-8 px-4 max-h-[95vh] overflow-y-auto relative">
       <h1 className="text-center font-bold text-2xl">Kullanıcı Düzenle</h1>
       <button
         type="button"

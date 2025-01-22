@@ -164,7 +164,7 @@ const AddOthers = ({
   }
 
   return (
-    <main className="py-8 px-4 max-h-[50rem] overflow-y-auto overflow-x-clip relative dark:text-white">
+    <main className="py-8 px-4 max-h-[95vh] overflow-y-auto overflow-x-clip relative dark:text-white">
       <h1 className="text-center font-bold text-2xl">Kullanıcı Seç</h1>
       <button
         type="button"
