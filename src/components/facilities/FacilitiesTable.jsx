@@ -332,7 +332,7 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
                       onClick={() => handleShowDetails(time)}
                     >
                       {facilitiy.IsGenderDifferent && (
-                        <p>{time.Gender == 0 ? "Kız" : "Erkek"}</p>
+                        <p>{time.Gender == 0 ? "Kadın" : "Erkek"}</p>
                       )}
                       <p>
                         Alan Kişi:{" "}

@@ -50,7 +50,7 @@ const UsersTable = ({ users }) => {
               </td>
 
               <td className="px-6 py-4">
-                {user.Gender == 0 ? "Kız" : "Erkek"}
+                {user.Gender == 0 ? "Kadın" : "Erkek"}
               </td>
               <td className="px-6 py-4">{user.Department}</td>
               <td className="px-6 py-4">
