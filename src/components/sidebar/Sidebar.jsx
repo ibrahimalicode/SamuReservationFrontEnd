@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { AdjustI, PlusI, UsersI } from "../../assets/icons";
+import { AdjustI, OrdersI, PackagesI, PlusI, UsersI } from "../../assets/icons";
 import { useAuth } from "../../context/AuthContext";
 import MenuI from "../../assets/icons/menu";
 
@@ -8,6 +8,13 @@ const Sidebar = ({ isSideOpen, setIsSideOpen }) => {
   const { user } = useAuth();
 
   const sidebar = [
+    {
+      label: "Rapor",
+      icon: <OrdersI />,
+      path: "/dashboard",
+      param: "dashboard",
+      show: user.Auth === 0,
+    },
     {
       label: "Kullanıcılar",
       icon: <UsersI />,
@@ -34,6 +41,13 @@ const Sidebar = ({ isSideOpen, setIsSideOpen }) => {
       icon: <PlusI />,
       path: "/requests",
       param: "requests",
+      show: true,
+    },
+    {
+      label: "Sosyal Medya",
+      icon: <PackagesI />,
+      path: "/contact",
+      param: "contact",
       show: true,
     },
   ];

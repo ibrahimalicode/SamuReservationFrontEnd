@@ -70,8 +70,6 @@ const SettingsPage = () => {
     }
   }
 
-  console.log(settingsData);
-
   return (
     <section className="md:ml-64 pt-20 px-[4%] bg-gray-100 dark:bg-gray-700 min-h-screen">
       <div className="w-full py-6">

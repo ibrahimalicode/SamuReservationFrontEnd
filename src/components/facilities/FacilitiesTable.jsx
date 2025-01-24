@@ -25,6 +25,28 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
     .concat(daysOrder.slice(0, currentDayIndex))
     .filter((day) => Object.keys(facilitiy.Programs).includes(day));
 
+  // Helper to update facilities and Firestore
+  const updateFacility = (updatedPrograms) => {
+    const updatedFacilities = [...facilities];
+    const facilityIndex = updatedFacilities.findIndex(
+      (fac) => fac.id === facilitiy.id
+    );
+    updatedFacilities[facilityIndex].Programs = updatedPrograms;
+
+    // Update Firestore
+    const facilityRef = doc(db, "Facilities", facilitiy.id);
+    try {
+      updateDoc(facilityRef, { Programs: updatedPrograms });
+    } catch (err) {
+      throw new Error(err);
+    }
+
+    // Update state
+    setFacilities(updatedFacilities);
+
+    // console.log("Updated facilities:", updatedFacilities);
+  };
+
   function checkUserPerDayWeek(day) {
     let dayReservationCount = 0;
     let weekReservationCount = 0;
@@ -92,6 +114,7 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
     }
 
     try {
+      toast.dismiss();
       toastId.current = toast.loading("İşleniyor...");
       // Helper to calculate the next occurrence of the selected day
       const getNextOccurrence = (day) => {
@@ -121,28 +144,6 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
         day === new Date().toLocaleString("en-US", { weekday: "short" })
           ? setToLastHour(Timestamp.now()) // If today, use current day at 12:59 PM
           : getNextOccurrence(day); // Otherwise, calculate the next occurrence
-
-      // Helper to update facilities and Firestore
-      const updateFacility = (updatedPrograms) => {
-        const updatedFacilities = [...facilities];
-        const facilityIndex = updatedFacilities.findIndex(
-          (fac) => fac.id === facilitiy.id
-        );
-        updatedFacilities[facilityIndex].Programs = updatedPrograms;
-
-        // Update Firestore
-        const facilityRef = doc(db, "Facilities", facilitiy.id);
-        try {
-          updateDoc(facilityRef, { Programs: updatedPrograms });
-        } catch (err) {
-          throw new Error(err);
-        }
-
-        // Update state
-        setFacilities(updatedFacilities);
-
-        // console.log("Updated facilities:", updatedFacilities);
-      };
 
       // Clone current programs
       const updatedPrograms = { ...facilitiy.Programs };
@@ -216,7 +217,43 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
       setPopupContent(<ShowDetails data={{ Users: [] }} />);
     }
   }
-  // console.log(user);
+
+  function handleCancel(day, index, time) {
+    // Clone current programs
+    const updatedPrograms = { ...facilitiy.Programs };
+    const updatedUsers = time?.Users
+      ? time.Users.filter((U) => U.StudentNumber !== user.IdNumber)
+      : [];
+
+    try {
+      toast.dismiss();
+      toastId.current = toast.loading("İşleniyor...");
+      if (facilitiy.MinUsers > 1) {
+        // Override Users and set PastUsers
+        updatedPrograms[day][index] = {
+          ...time,
+          Users: [],
+        };
+      } else {
+        // Override Users and set PastUsers
+        updatedPrograms[day][index] = {
+          ...time,
+          Users: updatedUsers,
+        };
+      }
+
+      // Apply updates
+      updateFacility(updatedPrograms);
+    } catch (err) {
+      console.log(err);
+      toast.dismiss(toastId.current);
+      toast.error("Bir hata oluştu.");
+      return;
+    }
+
+    toast.dismiss(toastId.current);
+    toast.success("Randevunuz başarıyla iptal edilmiştır.");
+  }
 
   return (
     <main className="overflow-x-auto" key={facilitiy.id}>
@@ -280,10 +317,18 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
                       time.Gender !== user.Gender &&
                       facilitiy.IsGenderDifferent &&
                       "hidden"
+                    }
+                    ${
+                      isTaken(time).taken &&
+                      "border-green-700 dark:border-green-600"
                     }`}
                   >
                     <div
-                      className="bg-slate-400/30 w-32 py-1.5 mb-1"
+                      className={`w-32 py-1.5 mb-1 ${
+                        isTaken(time).taken
+                          ? "bg-green-700 dark:bg-green-600 text-white"
+                          : "bg-slate-400/30"
+                      }`}
                       onClick={() => handleShowDetails(time)}
                     >
                       {facilitiy.IsGenderDifferent && (
@@ -301,20 +346,26 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
                       {time.StartTime}-{time.EndTime}
                     </p>
                     <button
-                      onClick={() =>
-                        handleTakeReservation(sortedPrograms[index], i, time)
-                      }
-                      disabled={isTaken(time).isFull || isTaken(time).taken}
-                      className={`w-full text-white rounded-sm text-sm py-1.5 mb-1 ${
+                      onClick={() => {
+                        !isTaken(time).taken
+                          ? handleTakeReservation(
+                              sortedPrograms[index],
+                              i,
+                              time
+                            )
+                          : handleCancel(sortedPrograms[index], i, time);
+                      }}
+                      disabled={isTaken(time).isFull}
+                      className={`w-full text-white rounded-sm text-sm py-1.5 ${
                         isTaken(time).taken
-                          ? "bg-green-700 dark:bg-green-600"
+                          ? "bg-red-500 dark:bg-red-700"
                           : isTaken(time).isFull
                           ? "bg-red-700 dark:bg-red-600"
                           : "bg-blue-700 dark:bg-blue-600"
                       }`}
                     >
                       {isTaken(time).taken
-                        ? "Aldınız"
+                        ? "İptal Et"
                         : isTaken(time).isFull
                         ? "Dolu"
                         : "Reservasyon al"}

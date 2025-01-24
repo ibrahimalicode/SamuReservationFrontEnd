@@ -7,6 +7,8 @@ import Facilities from "./Facilities";
 import Settings from "./Settings";
 import ShowNotification from "../components/notification/ShowNotification";
 import UserRequests from "./UserRequests";
+import Contact from "./Contact";
+import Dashboard from "./Dashboard";
 
 const HomePage = () => {
   const [isSideOpen, setIsSideOpen] = useState(false);
@@ -17,10 +19,12 @@ const HomePage = () => {
       <Sidebar isSideOpen={isSideOpen} setIsSideOpen={setIsSideOpen} />
       <Routes>
         <Route path="/" element={<Navigate to="/facilities" />} />
+        <Route path="/dashboard/*" element={<Dashboard />} />
         <Route path="/users/*" element={<Users />} />
         <Route path="/facilities/*" element={<Facilities />} />
         <Route path="/settings/*" element={<Settings />} />
         <Route path="/requests/*" element={<UserRequests />} />
+        <Route path="/contact/*" element={<Contact />} />
       </Routes>
     </>
   );
