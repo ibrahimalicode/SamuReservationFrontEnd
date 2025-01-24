@@ -11,6 +11,7 @@ export const AppContextProvider = ({ children }) => {
   const [usersData, setUsersData] = useState(null);
   const [facilitiesData, setFacilitiesData] = useState(null);
   const [settingsData, setSettingsData] = useState(null);
+  const [userRequests, setUserRequests] = useState(null);
 
   // Subscribe to Firestore collections
   useEffect(() => {
@@ -67,10 +68,26 @@ export const AppContextProvider = ({ children }) => {
       }
     );
 
+    // Subscribe to UserRequests collection
+    const unsubscribeUserRequests = onSnapshot(
+      collection(db, "UserRequests"),
+      (snapshot) => {
+        const userReqsts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUserRequests(userReqsts);
+      },
+      (error) => {
+        console.error("Error fetching UserRequests:", error);
+      }
+    );
+
     // Cleanup on unmount
     return () => {
       unsubscribeFacilities();
       unsubscribeSettings();
+      unsubscribeUserRequests();
     };
   }, []);
 
@@ -83,6 +100,8 @@ export const AppContextProvider = ({ children }) => {
         setFacilitiesData,
         settingsData,
         setSettingsData,
+        userRequests,
+        setUserRequests,
       }}
     >
       {children}

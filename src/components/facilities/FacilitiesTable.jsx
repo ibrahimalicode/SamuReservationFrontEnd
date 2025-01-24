@@ -272,58 +272,55 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
                 }
               </h1>
               <div className="w-full flex text-sm text-center gap-3">
-                {facilitiy.Programs[sortedPrograms[index]]
-                  .filter(
-                    (time) => user.Auth !== 1 || time.Gender === user.Gender
-                  )
-                  .map((time, i) => (
+                {facilitiy.Programs[sortedPrograms[index]].map((time, i) => (
+                  <div
+                    key={i}
+                    className={`border rounded-md overflow-clip cursor-pointer ${
+                      user.Auth !== 0 &&
+                      time.Gender !== user.Gender &&
+                      facilitiy.IsGenderDifferent &&
+                      "hidden"
+                    }`}
+                  >
                     <div
-                      key={i}
-                      className={`border rounded-md overflow-clip cursor-pointer`}
+                      className="bg-slate-400/30 w-32 py-1.5 mb-1"
+                      onClick={() => handleShowDetails(time)}
                     >
-                      <div
-                        className="bg-slate-400/30 w-32 py-1.5 mb-1"
-                        onClick={() => handleShowDetails(time)}
-                      >
+                      {facilitiy.IsGenderDifferent && (
                         <p>{time.Gender == 0 ? "Kız" : "Erkek"}</p>
-                        <p>
-                          Alan Kişi:{" "}
-                          {!time?.LastTaken ||
-                          Timestamp.now().seconds > time?.LastTaken?.seconds
-                            ? 0
-                            : time?.Users?.length || 0}
-                        </p>
-                      </div>
-                      <p className="py-2.5">
-                        {time.StartTime}-{time.EndTime}
-                      </p>
-                      {user.Auth !== 0 && (
-                        <button
-                          onClick={() =>
-                            handleTakeReservation(
-                              sortedPrograms[index],
-                              i,
-                              time
-                            )
-                          }
-                          disabled={isTaken(time).isFull || isTaken(time).taken}
-                          className={`w-full text-white rounded-sm text-sm py-1.5 mb-1 ${
-                            isTaken(time).taken
-                              ? "bg-green-700 dark:bg-green-600"
-                              : isTaken(time).isFull
-                              ? "bg-red-700 dark:bg-red-600"
-                              : "bg-blue-700 dark:bg-blue-600"
-                          }`}
-                        >
-                          {isTaken(time).taken
-                            ? "Aldınız"
-                            : isTaken(time).isFull
-                            ? "Dolu"
-                            : "Reservasyon al"}
-                        </button>
                       )}
+                      <p>
+                        Alan Kişi:{" "}
+                        {!time?.LastTaken ||
+                        Timestamp.now().seconds > time?.LastTaken?.seconds
+                          ? 0
+                          : time?.Users?.length || 0}
+                      </p>
                     </div>
-                  ))}
+                    <p className="py-2.5">
+                      {time.StartTime}-{time.EndTime}
+                    </p>
+                    <button
+                      onClick={() =>
+                        handleTakeReservation(sortedPrograms[index], i, time)
+                      }
+                      disabled={isTaken(time).isFull || isTaken(time).taken}
+                      className={`w-full text-white rounded-sm text-sm py-1.5 mb-1 ${
+                        isTaken(time).taken
+                          ? "bg-green-700 dark:bg-green-600"
+                          : isTaken(time).isFull
+                          ? "bg-red-700 dark:bg-red-600"
+                          : "bg-blue-700 dark:bg-blue-600"
+                      }`}
+                    >
+                      {isTaken(time).taken
+                        ? "Aldınız"
+                        : isTaken(time).isFull
+                        ? "Dolu"
+                        : "Reservasyon al"}
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

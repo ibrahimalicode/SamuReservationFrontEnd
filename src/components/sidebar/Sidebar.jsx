@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { AdjustI, UsersI } from "../../assets/icons";
+import { AdjustI, PlusI, UsersI } from "../../assets/icons";
 import { useAuth } from "../../context/AuthContext";
 import MenuI from "../../assets/icons/menu";
 
@@ -28,6 +28,13 @@ const Sidebar = ({ isSideOpen, setIsSideOpen }) => {
       path: "/settings",
       param: "settings",
       show: user.Auth === 0,
+    },
+    {
+      label: "Talep-İstek",
+      icon: <PlusI />,
+      path: "/requests",
+      param: "requests",
+      show: true,
     },
   ];
   return (

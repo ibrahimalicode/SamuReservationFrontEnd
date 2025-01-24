@@ -101,7 +101,7 @@ function EditFacilitiyPopup({ facilitiy }) {
 
   return (
     <div className="py-8 px-4 max-h-[95vh] overflow-y-auto relative">
-      <h1 className="text-center font-bold text-2xl">Tesis Ekle</h1>
+      <h1 className="text-center font-bold text-2xl">Tesis Düzenle</h1>
       <button
         type="button"
         className="absolute top-8 right-8"
@@ -267,6 +267,33 @@ function EditFacilitiyPopup({ facilitiy }) {
                 required
               />
             </div>
+
+            <div>
+              <div className="flex items-center gap-3">
+                <label
+                  htmlFor="GenderDiff"
+                  className="block text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Kadın-Erkek ayrı mı
+                </label>
+
+                <input
+                  type="checkbox"
+                  name="GenderDiff"
+                  id="GenderDiff"
+                  className="size-4"
+                  checked={facilitiyData.IsGenderDifferent}
+                  onChange={() =>
+                    setFacilitiyData((prev) => {
+                      return {
+                        ...prev,
+                        IsGenderDifferent: !facilitiyData.IsGenderDifferent,
+                      };
+                    })
+                  }
+                />
+              </div>
+            </div>
           </div>
 
           {daysOrder.map((day, i) => (
@@ -289,7 +316,9 @@ function EditFacilitiyPopup({ facilitiy }) {
                     <div className="flex items-center mb-1 space-x-2 text-sm">
                       <p className="w-full">Başlangıç Saati</p>
                       <p className="w-full">Bitiş Saati</p>
-                      <p className="w-full">Cinsiyet</p>
+                      {facilitiyData.IsGenderDifferent && (
+                        <p className="w-full">Cinsiyet</p>
+                      )}
                     </div>
                   )}
                   <div className="flex items-center justify-between mb-1 space-x-2">
@@ -314,34 +343,37 @@ function EditFacilitiyPopup({ facilitiy }) {
                       }
                       className="p-2 border rounded"
                     />
-                    <div className="min-w-max flex gap-3">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleInputChange(day, index, "Gender", 1)
-                        }
-                        className={`text-sm w-16 py-1.5 ${
-                          program.Gender == 1
-                            ? "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                            : "text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                        }`}
-                      >
-                        Erkek
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleInputChange(day, index, "Gender", 0)
-                        }
-                        className={`text-sm w-16 py-1.5 ${
-                          program.Gender == 0
-                            ? "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                            : "text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                        }`}
-                      >
-                        Kız
-                      </button>
-                    </div>
+                    {facilitiyData.IsGenderDifferent && (
+                      <div className="min-w-max flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleInputChange(day, index, "Gender", 1)
+                          }
+                          className={`text-sm w-16 py-1.5 ${
+                            program.Gender == 1
+                              ? "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                              : "text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                          }`}
+                        >
+                          Erkek
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleInputChange(day, index, "Gender", 0)
+                          }
+                          className={`text-sm w-16 py-1.5 ${
+                            program.Gender == 0
+                              ? "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                              : "text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                          }`}
+                        >
+                          Kadın
+                        </button>
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       onClick={() => handleRemoveTime(day, index)}

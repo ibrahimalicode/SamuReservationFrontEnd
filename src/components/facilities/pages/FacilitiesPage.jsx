@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import FacilitiesTable from "../FacilitiesTable";
 import AddFacility from "../actions/AddFacility";
 import TableSkeleton from "../../common/TableSkeleton";
@@ -8,13 +8,7 @@ import { useAppContext } from "../../../context/AppContext";
 const FacilitiesPage = () => {
   const { user } = useAuth();
   const { facilitiesData, setFacilitiesData } = useAppContext();
-  const [tableData, setTableData] = useState(null);
-
-  useEffect(() => {
-    if (facilitiesData) {
-      setTableData(facilitiesData[0]);
-    }
-  }, [facilitiesData]);
+  const [tableIndex, setTableIndex] = useState(0);
 
   return (
     <section className="md:ml-64 pt-20 px-[4%] bg-gray-100 dark:bg-gray-700 min-h-screen text-gray-900 dark:text-white">
@@ -28,24 +22,24 @@ const FacilitiesPage = () => {
       </div>
 
       <div className="flex gap-4 mb-3 overflow-x-auto">
-        {facilitiesData?.map((fac) => (
+        {facilitiesData?.map((fac, index) => (
           <button
-            key={fac.id}
-            onClick={() => setTableData(fac)}
+            key={index}
+            onClick={() => setTableIndex(index)}
             className={`text-sm px-5 py-2.5 whitespace-nowrap ${
-              fac.id == tableData?.id
+              index == tableIndex
                 ? "text-white bg-blue-700 hover:bg-blue-800 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                 : "text-gray-900 focus:outline-none bg-white rounded-lg border-2 border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
             }`}
           >
-            {fac.Name}
+            {facilitiesData[index]?.Name}
           </button>
         ))}
       </div>
 
-      {facilitiesData && tableData ? (
+      {facilitiesData ? (
         <FacilitiesTable
-          facilitiy={tableData}
+          facilitiy={facilitiesData[tableIndex]}
           facilities={facilitiesData}
           setFacilities={setFacilitiesData}
         />

@@ -48,7 +48,7 @@ const Header = ({ isSideOpen, setIsSideOpen }) => {
               <MenuI />
             </button>
             <Link
-              to="https://holiday.ashamlolie.com"
+              to={import.meta.env.VITE_FRONTEND_URL}
               className="flex ms-2 md:me-24"
             >
               <img src={logo} className="h-8 me-3" alt="ashamholiday Logo" />

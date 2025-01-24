@@ -30,12 +30,13 @@ function AddFacilityPopup() {
   const { setPopupContent } = usePopup();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [facilityData, setFacilityData] = useState({
+  const [facilitiyData, setFacilitiyData] = useState({
     Name: "",
     Description: "",
     MaxUsers: "",
     MinUsers: "",
     UserPerWeek: "",
+    IsGenderDifferent: true,
     Programs: {
       Mon: [],
       Tue: [],
@@ -48,7 +49,7 @@ function AddFacilityPopup() {
   });
 
   const handleAddTime = (day) => {
-    setFacilityData((prev) => ({
+    setFacilitiyData((prev) => ({
       ...prev,
       Programs: {
         ...prev.Programs,
@@ -65,7 +66,7 @@ function AddFacilityPopup() {
   };
 
   const handleRemoveTime = (day, index) => {
-    setFacilityData((prev) => ({
+    setFacilitiyData((prev) => ({
       ...prev,
       Programs: {
         ...prev.Programs,
@@ -75,7 +76,7 @@ function AddFacilityPopup() {
   };
 
   const handleInputChange = (day, index, field, value) => {
-    setFacilityData((prev) => ({
+    setFacilitiyData((prev) => ({
       ...prev,
       Programs: {
         ...prev.Programs,
@@ -95,7 +96,7 @@ function AddFacilityPopup() {
 
       const newFacilityRef = doc(collection(db, "Facilities"));
       await setDoc(newFacilityRef, {
-        ...facilityData,
+        ...facilitiyData,
         createdAt: new Date(),
       });
 
@@ -134,9 +135,9 @@ function AddFacilityPopup() {
               type="text"
               name="Name"
               id="Name"
-              value={facilityData.Name}
+              value={facilitiyData.Name}
               onChange={(e) =>
-                setFacilityData((prev) => {
+                setFacilitiyData((prev) => {
                   return {
                     ...prev,
                     Name: e.target.value,
@@ -160,9 +161,9 @@ function AddFacilityPopup() {
               type="text"
               name="Description"
               id="Description"
-              value={facilityData.Description}
+              value={facilitiyData.Description}
               onChange={(e) =>
-                setFacilityData((prev) => {
+                setFacilitiyData((prev) => {
                   return {
                     ...prev,
                     Description: e.target.value,
@@ -186,9 +187,9 @@ function AddFacilityPopup() {
               type="number"
               name="MinUsers"
               id="MinUsers"
-              value={facilityData.MinUsers}
+              value={facilitiyData.MinUsers}
               onChange={(e) =>
-                setFacilityData((prev) => {
+                setFacilitiyData((prev) => {
                   return {
                     ...prev,
                     MinUsers: e.target.value,
@@ -212,9 +213,9 @@ function AddFacilityPopup() {
               type="number"
               name="MaxUsers"
               id="MaxUsers"
-              value={facilityData.MaxUsers}
+              value={facilitiyData.MaxUsers}
               onChange={(e) =>
-                setFacilityData((prev) => {
+                setFacilitiyData((prev) => {
                   return {
                     ...prev,
                     MaxUsers: e.target.value,
@@ -238,9 +239,9 @@ function AddFacilityPopup() {
               type="number"
               name="UserPerDay"
               id="UserPerDay"
-              value={facilityData.UserPerDay}
+              value={facilitiyData.UserPerDay}
               onChange={(e) =>
-                setFacilityData((prev) => {
+                setFacilitiyData((prev) => {
                   return {
                     ...prev,
                     UserPerDay: e.target.value,
@@ -264,9 +265,9 @@ function AddFacilityPopup() {
               type="number"
               name="UserPerWeek"
               id="UserPerWeek"
-              value={facilityData.UserPerWeek}
+              value={facilitiyData.UserPerWeek}
               onChange={(e) =>
-                setFacilityData((prev) => {
+                setFacilitiyData((prev) => {
                   return {
                     ...prev,
                     UserPerWeek: e.target.value,
@@ -279,7 +280,34 @@ function AddFacilityPopup() {
             />
           </div>
 
-          {Object.keys(facilityData.Programs).map((day, i) => (
+          <div>
+            <div className="flex items-center gap-3">
+              <label
+                htmlFor="GenderDiff"
+                className="block text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Kadın-Erkek ayrı mı
+              </label>
+
+              <input
+                type="checkbox"
+                name="GenderDiff"
+                id="GenderDiff"
+                className="size-4"
+                checked={facilitiyData.IsGenderDifferent}
+                onChange={() =>
+                  setFacilitiyData((prev) => {
+                    return {
+                      ...prev,
+                      IsGenderDifferent: !facilitiyData.IsGenderDifferent,
+                    };
+                  })
+                }
+              />
+            </div>
+          </div>
+
+          {Object.keys(facilitiyData.Programs).map((day, i) => (
             <div key={i}>
               <div className="flex justify-between mb-2 text-sm font-medium text-gray-900 dark:text-white border-b">
                 <p>{day}</p>
@@ -291,13 +319,15 @@ function AddFacilityPopup() {
                   Saat Ekle
                 </button>
               </div>
-              {facilityData.Programs[day].map((program, index) => (
+              {facilitiyData.Programs[day].map((program, index) => (
                 <React.Fragment key={index}>
                   {index == 0 && (
                     <div className="flex items-center mb-1 space-x-2 text-sm">
                       <p className="w-full">Başlangıç Saati</p>
                       <p className="w-full">Bitiş Saati</p>
-                      <p className="w-full">Cinsiyet</p>
+                      {facilitiyData.IsGenderDifferent && (
+                        <p className="w-full">Cinsiyet</p>
+                      )}
                     </div>
                   )}
                   <div className="flex items-center mb-1 space-x-2">
@@ -322,34 +352,37 @@ function AddFacilityPopup() {
                       }
                       className="p-2 border rounded"
                     />
-                    <div className="min-w-max flex gap-1">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleInputChange(day, index, "Gender", 1)
-                        }
-                        className={`text-sm w-16 py-1.5 ${
-                          program.Gender == 1
-                            ? "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                            : "text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                        }`}
-                      >
-                        Erkek
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleInputChange(day, index, "Gender", 0)
-                        }
-                        className={`text-sm w-16 py-1.5 ${
-                          program.Gender == 0
-                            ? "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                            : "text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                        }`}
-                      >
-                        Kız
-                      </button>
-                    </div>
+                    {facilitiyData.IsGenderDifferent && (
+                      <div className="min-w-max flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleInputChange(day, index, "Gender", 1)
+                          }
+                          className={`text-sm w-16 py-1.5 ${
+                            program.Gender == 1
+                              ? "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                              : "text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                          }`}
+                        >
+                          Erkek
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleInputChange(day, index, "Gender", 0)
+                          }
+                          className={`text-sm w-16 py-1.5 ${
+                            program.Gender == 0
+                              ? "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                              : "text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                          }`}
+                        >
+                          Kadın
+                        </button>
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       onClick={() => handleRemoveTime(day, index)}
