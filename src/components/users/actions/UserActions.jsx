@@ -1,4 +1,5 @@
 import MenuI from "../../../assets/icons/menu";
+import DeleteUser from "./DeleteUser";
 import EditUser from "./EditUser";
 
 const UserActions = ({ index, open, setOpen, user, itemNumber }) => {
@@ -19,6 +20,7 @@ const UserActions = ({ index, open, setOpen, user, itemNumber }) => {
       >
         <ul>
           <EditUser user={user} setOpen={setOpen} />
+          <DeleteUser user={user} setOpen={setOpen} />
         </ul>
       </div>
     </div>

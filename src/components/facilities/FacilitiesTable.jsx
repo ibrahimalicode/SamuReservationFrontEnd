@@ -8,6 +8,7 @@ import { usePopup } from "../../context/PopupContext";
 import AddOthers from "./actions/AddOthers";
 import toast from "react-hot-toast";
 import { useRef } from "react";
+import DeleteFacility from "./actions/DeleteFacility";
 
 const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
   const toastId = useRef();
@@ -292,8 +293,9 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
           </div>
 
           {user?.Auth === 0 && (
-            <div>
+            <div className="flex gap-3">
               <EditFacility facilitiy={facilitiy} />
+              <DeleteFacility facility={facilitiy} />
             </div>
           )}
         </div>
