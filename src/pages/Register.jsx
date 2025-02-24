@@ -32,6 +32,8 @@ const RegisterPage = () => {
     Password: "",
     ConfirmPassword: "",
     SchoolYear: "",
+    Kilo: "",
+    Height: "",
   });
 
   async function handleRegister(e) {
@@ -270,6 +272,56 @@ const RegisterPage = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-blue-600 focus:border-blue-600 block w-full px-2.5 py-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Bölüm"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="Kilo"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Kilo
+                  </label>
+                  <input
+                    type="text"
+                    name="Kilo"
+                    id="Kilo"
+                    value={userData.Kilo}
+                    onChange={(e) =>
+                      setUserData((prev) => {
+                        return {
+                          ...prev,
+                          Kilo: e.target.value,
+                        };
+                      })
+                    }
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-blue-600 focus:border-blue-600 block w-full px-2.5 py-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="KG"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="Height"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Boy
+                  </label>
+                  <input
+                    type="text"
+                    name="Height"
+                    id="Height"
+                    value={userData.Height}
+                    onChange={(e) =>
+                      setUserData((prev) => {
+                        return {
+                          ...prev,
+                          Height: e.target.value,
+                        };
+                      })
+                    }
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-blue-600 focus:border-blue-600 block w-full px-2.5 py-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Boy"
                   />
                 </div>
 

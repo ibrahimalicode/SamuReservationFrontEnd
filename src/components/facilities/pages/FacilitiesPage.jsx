@@ -21,7 +21,7 @@ const FacilitiesPage = () => {
         )}
       </div>
 
-      <div className="flex gap-4 mb-3 overflow-x-auto">
+      <div className="flex flex-wrap gap-x-4 gap-y-2 mb-3">
         {facilitiesData?.map((fac, index) => (
           <button
             key={index}

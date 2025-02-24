@@ -3,6 +3,7 @@ import { usePopup } from "../../../context/PopupContext";
 
 const ShowDetails = ({ data }) => {
   const { setPopupContent } = usePopup();
+
   return (
     <main className="py-8 px-4 max-h-[95vh] overflow-y-auto relative dark:text-white">
       <h1 className="text-center font-bold text-2xl">Randevu Detayı</h1>
@@ -13,7 +14,12 @@ const ShowDetails = ({ data }) => {
       >
         <CloseI />
       </button>
+
       <div className="overflow-x-auto mt-8">
+        <div className="flex gap-3 mb-3">
+          <p className="font-bold">Malzeme:</p>
+          <p>{data.Additional || "Istemiyoruz"}</p>
+        </div>
         <table className="table-auto border-collapse border border-gray-300 w-full">
           <thead>
             <tr className="">

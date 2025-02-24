@@ -1,4 +1,8 @@
+// import { useAppContext } from "../../../context/AppContext";
+
 const DashboardPage = () => {
+  // const { facilitiesData } = useAppContext();
+
   return (
     <section className="md:ml-64 pt-20 px-[4%] bg-gray-100 dark:bg-gray-700 min-h-screen">
       <div className="w-full flex justify-between py-6 text-gray-900 dark:text-white">

@@ -97,8 +97,26 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
     return true;
   }
 
+  function checkIfTimeHasPassed(time) {
+    const now = new Date();
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+
+    // Convert StartTime to hours and minutes
+    const [startHours, startMinutes] = time.split(":").map(Number);
+
+    // Compare times
+    if (
+      currentHours > startHours ||
+      (currentHours === startHours && currentMinutes > startMinutes)
+    ) {
+      return true;
+    } else return false;
+  }
+
   function handleTakeReservation(day, index, time) {
     if (!checkUserPerDayWeek(day)) return;
+    if (checkIfTimeHasPassed(time.StartTime)) return;
 
     if (facilitiy.MinUsers > 1) {
       setPopupContent(
@@ -221,6 +239,8 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
 
   function handleCancel(day, index, time) {
     // Clone current programs
+    if (checkIfTimeHasPassed(time.StartTime)) return;
+
     const updatedPrograms = { ...facilitiy.Programs };
     const updatedUsers = time?.Users
       ? time.Users.filter((U) => U.StudentNumber !== user.IdNumber)
@@ -257,9 +277,9 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
   }
 
   return (
-    <main className="overflow-x-auto" key={facilitiy.id}>
-      <div className="w-max p-4 relative shadow-lg border-2 border-slate-300 sm:rounded-lg">
-        <div className="flex text-sm justify-between gap-3 items-end max-w-4xl">
+    <main key={facilitiy.id}>
+      <div className="p-4 relative shadow-lg border-2 border-slate-300 sm:rounded-lg">
+        <div className="flex text-sm justify-between gap-3 items-end max-w-4xl max-md:flex-col max-sm:items-start">
           <div className="flex flex-col gap-2">
             <p>
               <span className="font-bold">Ad:</span> {facilitiy.Name}
@@ -303,14 +323,14 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
         <div className="w-full">
           <h1 className="font-bold text-lg mt-3">Programlar:</h1>
           {Object.keys(facilitiy.Programs).map((prg, index) => (
-            <div key={index} className="mb-2">
-              <h1 className="font-bold mb-2">
+            <div key={index} className="mb-5">
+              <h1 className="font-bold mb-2 text-xl">
                 {
                   DaysEnums.filter((en) => en.id == sortedPrograms[index])[0]
                     ?.label
                 }
               </h1>
-              <div className="w-full flex text-sm text-center gap-3">
+              <div className="w-full flex flex-wrap text-sm text-center gap-3">
                 {facilitiy.Programs[sortedPrograms[index]].map((time, i) => (
                   <div
                     key={i}
@@ -357,7 +377,7 @@ const FacilitiesTable = ({ facilitiy, facilities, setFacilities }) => {
                             )
                           : handleCancel(sortedPrograms[index], i, time);
                       }}
-                      disabled={isTaken(time).isFull}
+                      disabled={isTaken(time).isFull && !isTaken(time).taken}
                       className={`w-full text-white rounded-sm text-sm py-1.5 ${
                         isTaken(time).taken
                           ? "bg-red-500 dark:bg-red-700"
